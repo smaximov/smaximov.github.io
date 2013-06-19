@@ -1,0 +1,7 @@
+<div class="highlight"><pre><span class="p">(</span><span class="nf">for-each</span>
+ <span class="p">(</span><span class="k">lambda </span><span class="p">(</span><span class="nf">elt</span><span class="p">)</span>
+   <span class="p">(</span><span class="nf">with-check-info</span>
+    <span class="p">([</span><span class="ss">&#39;current-element</span> <span class="nv">elt</span><span class="p">])</span>
+    <span class="p">(</span><span class="nf">check-pred</span> <span class="nv">odd?</span> <span class="nv">elt</span><span class="p">)))</span>
+ <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">3</span> <span class="mi">5</span> <span class="mi">7</span> <span class="mi">8</span><span class="p">))</span>
+</pre></div>

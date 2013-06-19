@@ -1,0 +1,7 @@
+<div class="highlight"><pre><span class="c1">;; Проверка на эквивалентность, успешна</span>
+<span class="p">(</span><span class="nf">check-eq?</span> <span class="nv">empty</span> <span class="p">(</span><span class="nf">rest</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+
+<span class="c1">;; Проверка на равенство, неудачна,</span>
+<span class="c1">;; содержит дополнительное сообщение</span>
+<span class="p">(</span><span class="nf">check-equal?</span> <span class="o">&#39;</span><span class="p">(</span><span class="mi">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">)</span> <span class="s">&quot;1 2 3&quot;</span> <span class="s">&quot;List of integers is not a string&quot;</span><span class="p">)</span>
+</pre></div>
