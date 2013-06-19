@@ -5,7 +5,7 @@
 url: http://smaximov.github.io
 title: My Octopress Blog
 subtitle: A blogging framework for hackers.
-author: Your Name
+author: Сергей Максимов
 simple_search: http://google.com/search
 description:
 
@@ -33,12 +33,22 @@ destination: public
 plugins: plugins
 code_dir: downloads/code
 category_dir: blog/categories
-markdown: rdiscount
-rdiscount:
+markdown: redcarpet2
+redcarpet:
   extensions:
     - autolink
-    - footnotes
-    - smart
+    - hard_wrap
+    - no_intra_emphasis
+    - fenced_code_blocks
+    - tables
+    - with_toc_data
+    - strikethrough
+    - superscript
+# rdiscount:
+#   extensions:
+#     - autolink
+#     - footnotes
+#     - smart
 pygments: false # default python pygments have been replaced by pygments.rb
 
 paginate: 10          # Posts per page on the blog index
