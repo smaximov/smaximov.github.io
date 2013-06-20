@@ -9,8 +9,9 @@
   <meta name="author" content="Сергей Максимов">
 
   
-  <meta name="description" content="Первая запись в блоге. 1
-(format t &quot;Hello, World!&quot;) ">
+  <meta name="description" content="Введение Юнит-тестирование &mdash; это процесс проверки на корректность
+отдельных единиц (модулей) исходного кода вместе со связанными
+данными. Цель &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -73,6 +74,81 @@
       
   <header>
     
+      <h1 class="entry-title"><a href="/blog/2013/06/19/unit-testing-in-racket-with-rackunit/">Юнит-тестирование в Racket: RackUnit</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-19T22:30:00+11:00" pubdate data-updated="true">Jun 19<span>th</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><h1 id="toc_24">Введение</h1>
+
+<p><em>Юнит-тестирование</em> &mdash; это процесс проверки на корректность
+отдельных единиц (модулей) исходного кода вместе со связанными
+данными. Цель юнит-тестирования состоит в том, чтобы изолировать
+отдельные части программы друг от друга и убедиться, что каждая
+отдельная часть ведет себя корректно.</p>
+
+<p>Подробнее о юнит-тестировании можно узнать <a href="http://en.wikipedia.org/wiki/Unit_testing" title="Wikipedia entry for Unit Testing">здесь</a>.</p>
+
+<p><mark>Disclaimer</mark>: по большей части этот пост представляет собой выборочный
+перевод официальной документации.</p>
+
+<h1 id="toc_25">Юнит-тестирование в Racket</h1>
+
+<p>Racket поставляется с собственным фреймворком для юнит-тестирования
+<a href="http://docs.racket-lang.org/rackunit/" title="RackUnit Documentation">RackUnit</a>. RackUnit позволяет использовать простые
+проверки (<em>Checks</em>), группировать несколько связанных проверок в один
+<em>Test Case</em>, который устанавливает линейную зависимость между
+тестами: если какой-то тест провалится, то следующие тесты не будут
+запущены. Checks и Test Cases выполняются сразу же, как только их
+достигнет поток управления.</p>
+
+<p>Существует еще один тип тестов &mdash; <em>Test Suite</em>. Test Suite&#39;ы состоят из Test
+Case&#39;ов и других Test Suite&#39;ов; их выполнение отложено до момента,
+определенного программистом.</p>
+
+<p>О философии, лежащей за этими концепциями, можно почитать
+<a href="http://docs.racket-lang.org/rackunit/philosophy.html" title="RackUnit Philosophy">тут</a>.</p>
+
+<p>Для написания тестов необходимо подключить модуль <code>rackunit</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='racket'><span class='line'><span class="p">(</span><span class="k">require </span><span class="nv">rackunit</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/06/19/unit-testing-in-racket-with-rackunit/">Читать дальше &rarr;</a>
+    </footer>
+  
+
+
+    </article>
+  
+  
+    <article>
+      
+  <header>
+    
       <h1 class="entry-title"><a href="/blog/2013/06/19/at-the-very-beginning/">Начало</a></h1>
     
     
@@ -119,6 +195,10 @@
     <section>
   <h1>Недавнее</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/06/19/unit-testing-in-racket-with-rackunit/">Юнит-тестирование в Racket: RackUnit</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2013/06/19/at-the-very-beginning/">Начало</a>
