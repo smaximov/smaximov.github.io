@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Misc | My Octopress Blog]]></title>
+  <title><![CDATA[Category: Misc | Без названия]]></title>
   <link href="http://smaximov.github.io/blog/categories/misc/atom.xml" rel="self"/>
   <link href="http://smaximov.github.io/"/>
-  <updated>2013-06-20T20:29:43+11:00</updated>
+  <updated>2013-06-20T21:03:11+11:00</updated>
   <id>http://smaximov.github.io/</id>
   <author>
     <name><![CDATA[Сергей Максимов]]></name>
