@@ -1,0 +1,16 @@
+<div class="highlight"><pre><span class="p">(</span><span class="nf">define-test-suite</span> <span class="nv">my-test-suite</span>
+   <span class="kd">#:before</span> <span class="p">(</span><span class="k">lambda </span><span class="p">()</span>
+              <span class="p">(</span><span class="nb">display </span><span class="s">&quot;Runs before the entire suite\n&quot;</span><span class="p">))</span>
+   <span class="kd">#:after</span> <span class="p">(</span><span class="k">lambda </span><span class="p">()</span>
+             <span class="p">(</span><span class="nb">display </span><span class="s">&quot;Runs after the entire suite\n&quot;</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">test-case</span>
+   <span class="s">&quot;Named test case&quot;</span>
+   <span class="p">(</span><span class="nf">test-eq?</span> <span class="s">&quot;Checking the equality of numbers&quot;</span> <span class="mi">42</span> <span class="mi">42</span><span class="p">))</span>
+  <span class="p">(</span><span class="nf">test-suite</span>
+   <span class="s">&quot;Nested test suite&quot;</span>
+   <span class="p">(</span><span class="nf">test-begin</span>
+    <span class="p">(</span><span class="nf">check-not-exn</span>
+     <span class="p">(</span><span class="k">lambda </span><span class="p">()</span>
+       <span class="no">#f</span><span class="p">))</span>
+    <span class="p">(</span><span class="nf">check</span> <span class="nv">memq</span> <span class="ss">&#39;racket</span> <span class="o">&#39;</span><span class="p">(</span><span class="nv">lisp</span> <span class="nv">common-lisp</span> <span class="nv">scheme</span> <span class="nv">racket</span><span class="p">)))))</span>
+</pre></div>

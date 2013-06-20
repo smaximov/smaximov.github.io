@@ -123,12 +123,98 @@ RackUnit предоставляет различные типы проверок
 Test Cases
 ----------
 
-To be written
+С ростом сложности программы единица тестирования выходит за пределы
+отдельной проверки. Часто возникает случай, что если какая-нибудь
+проверка не выполняется, то нет смысла запускать другие проверки. Для
+решения подобных проблем существуют составные тестирующие формы,
+которые позволяют группировать выражения. Если любое выражение не
+выполняется, то следующие выражения не проверяются; вся составная
+форма считается не выполненной.
+
+Простейшей составной тестирующей формой является _Test Case_. Test
+Case можно объявить с помощью формы `test-begin`:
+
+``` racket
+(test-begin
+ (check-false (empty? empty))
+ (fail "This message will not be shown"))
+```
+
+В предыдущем примере первая же проверка не выполняется, что приводит к
+тому, что последующие выражения  &mdash; `(fail ...)` &mdash; не
+проверяются.
+
+С помощью формы `test-case` можно указать имя для определяемого Test
+Case'а; это имя будет выведено, если тест завершится неудачей.
+
+Существует несколько вспомогательных процедур для объявления Test
+Cases, информацию о них можно посмотреть в
+[документации][rackunit-test-cases].
+
+[rackunit-test-cases]:
+http://docs.racket-lang.org/rackunit/api.html#(part._.Test_.Cases)
+"RackUnit Test Cases Documentation"
+
 
 Test Suites
 -----------
 
-To be written
+Test Cases в свою очередь тоже могут быть сгруппированы в _Test
+Suites_. Test Suite может содержать как Test Cases, так и другие Test
+Units. В отличие от предыдущих видов тестов, Test Suite не запускается
+сразу же, когда поток управления достигает определения Test Suite;
+вместо этого программист должен пользоваться функциями, запускающими
+Test Suites.
+
+Создать Test Suite можно с помощью базовой формы `test-suite`. Она
+принимает необязательные имя для Test Suite и действия (<em>thunks</em>),
+предназначенные для выполнения до и после проверки Test Suite.
+
+``` racket
+(define my-test-suite
+  (test-suite
+   "My super test suite"
+   #:before (lambda ()
+              (display "Runs before the entire suite\n"))
+   #:after (lambda ()
+             (display "Runs after the entire suite\n"))
+   (test-case
+    "Named test case"
+    (test-eq? "Checking the equality of numbers" 42 42))
+   (test-suite
+    "Nested test suite"
+    (test-begin
+     (check-not-exn
+      (lambda ()
+        #f))
+     (check memq 'racket '(lisp common-lisp scheme racket))))))
+```
+
+Существуют макросы для упрощения определения Test Suite'ов. Макрос
+`define-test-suite` создает Test Suite с заданным именем, приведенным
+к строке, и связывает созданный тест с этим именем. Вышеприведенный
+пример может быть переписан с помощью макроса `define-test-suite` так:
+
+``` racket
+(define-test-suite my-test-suite
+   #:before (lambda ()
+              (display "Runs before the entire suite\n"))
+   #:after (lambda ()
+             (display "Runs after the entire suite\n"))
+  (test-case
+   "Named test case"
+   (test-eq? "Checking the equality of numbers" 42 42))
+  (test-suite
+   "Nested test suite"
+   (test-begin
+    (check-not-exn
+     (lambda ()
+       #f))
+    (check memq 'racket '(lisp common-lisp scheme racket)))))
+```
+
+Макрос `define/provide-test-suite` ведет себя как `define-test-suite`,
+только он еще импортирует (<em>provides</em>) Test Suite.
 
 Разное
 ======
