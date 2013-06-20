@@ -1,0 +1,9 @@
+<div class="highlight"><pre><span class="p">(</span><span class="nf">around</span>
+  <span class="p">(</span><span class="nb">with-output-to-file </span><span class="s">&quot;test.dat&quot;</span>
+     <span class="p">(</span><span class="k">lambda </span><span class="p">()</span>
+       <span class="p">(</span><span class="nb">write </span><span class="s">&quot;foo&quot;</span><span class="p">)))</span>
+  <span class="p">(</span><span class="nb">with-input-from-file </span><span class="s">&quot;test.dat&quot;</span>
+    <span class="p">(</span><span class="k">lambda </span><span class="p">()</span>
+      <span class="p">(</span><span class="nf">check-equal?</span> <span class="s">&quot;foo&quot;</span> <span class="p">(</span><span class="nf">read</span><span class="p">))))</span>
+  <span class="p">(</span><span class="nb">delete-file </span><span class="s">&quot;test.dat&quot;</span><span class="p">))</span>
+</pre></div>
