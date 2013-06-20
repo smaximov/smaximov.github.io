@@ -7,7 +7,6 @@ categories:
 - Racket
 - Unit Testing
 - RackUnit
-published: true
 ---
 
 Введение
