@@ -1,0 +1,458 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Генерация PDF с помощью Prawn - Без названия</title>
+  <meta name="author" content="Сергей Максимов">
+
+  
+  <meta name="description" content="Введение Динамическое создание PDF &mdash; довольно распространенное задача.
+Для Ruby существует несколько библиотек для генерации с PDF-файлов,
+вот &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://smaximov.github.io/blog/2013/06/21/generating-pdf-in-rails-with-prawn">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Без названия" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Без названия</a></h1>
+  
+    <h2>Блог о языках программирования, технологиях и прочих (не)интересных вещах</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:smaximov.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Поиск..."/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Блог</a></li>
+  <li><a href="/blog/archives">Архив</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Генерация PDF с помощью Prawn</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-21T18:17:00+11:00" pubdate data-updated="true">Jun 21<span>st</span>, 2013</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h1 id="toc_40">Введение</h1>
+
+<p>Динамическое создание PDF &mdash; довольно распространенное задача.
+Для Ruby существует несколько библиотек для генерации с PDF-файлов,
+вот некоторые из них:</p>
+
+<ul>
+<li><p><a href="https://github.com/pdfkit/pdfkit">PDFkit</a> &mdash; библиотека для конвертации HTML в PDF. Использует
+shell-утилиту <a href="http://code.google.com/p/wkhtmltopdf/">wkhtmltopdf</a>, которая, в свою очередь,
+использует webkit в качестве движка рендеринга;</p></li>
+<li><p><a href="https://github.com/mileszs/wicked_pdf">Wicked pdf</a> &mdash; тоже конвертация HTML &rarr; PDF,
+тоже <a href="http://code.google.com/p/wkhtmltopdf/">wkhtmltopdf</a>;</p></li>
+<li><p><a href="https://github.com/fnando/kitabu">Kitabu</a> &mdash; генерация PDF и e-Pub из Textile, Markdown
+или HTML;</p></li>
+<li><p><a href="http://prawn.majesticseacreature.com/">Prawn</a> &mdash; библиотека для создания PDF-файлов,
+написанная на чистом Ruby.</p></li>
+</ul>
+
+<p>Таким образом, видны две тенденции: генерация PDF из какого-нибудь
+языка разметки либо использование DSL для генерации.</p>
+
+<p>Мой выбор пал на Prawn, о нем и будет рассказано в остальной части
+поста.</p>
+
+<!-- more -->
+
+<h1 id="toc_41">Установка и настройка</h1>
+
+<p>Установка проста: добавьте следующую строку в <code>Gemfile</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">gem</span> <span class="s1">&#39;prawn&#39;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+<p>Затем нужно добавить в <code>config/application.rb</code> автозагрузку файлов из
+директории <code>/app/pdfs/</code>, в которой мы будем хранить классы, создающие
+PDF-файлы:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">module</span> <span class="nn">Biotriz</span>
+</span><span class='line'>  <span class="k">class</span> <span class="nc">Application</span> <span class="o">&lt;</span> <span class="ss">Rails</span><span class="p">:</span><span class="ss">:Application</span>
+</span><span class='line'>    <span class="n">config</span><span class="o">.</span><span class="n">autoload_paths</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="no">Rails</span><span class="o">.</span><span class="n">root</span><span class="si">}</span><span class="s2">/app/pdfs&quot;</span>
+</span><span class='line'>    <span class="c1"># ... skipped ...</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+<p>Далее зарегистрируем Mime-тип <code>:pdf</code> в
+<code>/config/initializers/mime_types.rb</code>:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="ss">Mime</span><span class="p">:</span><span class="ss">:Type</span><span class="o">.</span><span class="n">register</span> <span class="s1">&#39;application/pdf&#39;</span><span class="p">,</span> <span class="ss">:pdf</span>
+</span></code></pre></td></tr></table></div></figure>
+
+<p>Это позволит нам указывать тип <code>:pdf</code> в методе <code>send_data</code>, а также
+использовать его в блоке <code>respond_to</code>.</p>
+
+<h1 id="toc_42">Использование</h1>
+
+<p>Код класса, создающего PDF:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="c1"># encoding: utf-8</span>
+</span><span class='line'>
+</span><span class='line'><span class="nb">require</span> <span class="s2">&quot;prawn/measurement_extensions&quot;</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">SearchResults</span> <span class="o">&lt;</span> <span class="ss">Prawn</span><span class="p">:</span><span class="ss">:Document</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">Rails</span><span class="o">.</span><span class="n">application</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">url_helpers</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="ss">ActionDispatch</span><span class="p">:</span><span class="ss">:Routing</span><span class="o">::</span><span class="no">PolymorphicRoutes</span>
+</span><span class='line'>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">super</span><span class="p">()</span>
+</span><span class='line'>    <span class="n">pad</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">font</span><span class="p">(</span><span class="s2">&quot;Helvetica&quot;</span><span class="p">,</span> <span class="ss">size</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="ss">style</span><span class="p">:</span> <span class="ss">:bold</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">text</span> <span class="s2">&quot;Search Results (</span><span class="si">#{</span><span class="no">Time</span><span class="o">.</span><span class="n">zone</span><span class="o">.</span><span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%d/%m/%Y %H:%M&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">pad_bottom</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">font</span><span class="p">(</span><span class="s2">&quot;Helvetica&quot;</span><span class="p">,</span> <span class="ss">size</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="ss">style</span><span class="p">:</span> <span class="ss">:bold</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">pad_bottom</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>          <span class="n">text</span> <span class="s2">&quot;Search Query&quot;</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">query_output</span> <span class="o">=</span> <span class="o">[]</span>
+</span><span class='line'>      <span class="n">first</span> <span class="o">=</span> <span class="kp">false</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">query</span><span class="o">.</span><span class="n">try</span><span class="p">(</span><span class="ss">:each</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">item</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">color</span> <span class="o">=</span> <span class="n">item</span><span class="o">[</span><span class="ss">:color</span><span class="o">][</span><span class="mi">1</span><span class="o">.</span><span class="n">.</span><span class="o">-</span><span class="mi">1</span><span class="o">]</span>
+</span><span class='line'>        <span class="n">cls</span> <span class="o">=</span> <span class="n">item</span><span class="o">[</span><span class="ss">:model</span><span class="o">].</span><span class="n">classify</span><span class="o">.</span><span class="n">constantize</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">item</span><span class="o">[</span><span class="ss">:values</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">value</span><span class="o">|</span>
+</span><span class='line'>          <span class="n">query_output</span> <span class="o">&lt;&lt;</span> <span class="p">{</span>
+</span><span class='line'>            <span class="ss">text</span><span class="p">:</span> <span class="s2">&quot;[</span><span class="si">#{</span><span class="n">value</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">,</span>
+</span><span class='line'>            <span class="ss">link</span><span class="p">:</span> <span class="n">polymorphic_url</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="ss">host</span><span class="p">:</span> <span class="n">host</span><span class="p">)</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="k">if</span> <span class="ow">not</span> <span class="n">first</span>
+</span><span class='line'>            <span class="n">query_output</span> <span class="o">&lt;&lt;</span> <span class="p">{</span> <span class="ss">text</span><span class="p">:</span> <span class="s2">&quot;   &quot;</span> <span class="p">}</span>
+</span><span class='line'>            <span class="n">first</span> <span class="o">=</span> <span class="kp">false</span>
+</span><span class='line'>          <span class="k">end</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>      <span class="n">formatted_text</span> <span class="n">query_output</span><span class="p">,</span> <span class="ss">leading</span><span class="p">:</span> <span class="mi">10</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="n">pad_bottom</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">font</span><span class="p">(</span><span class="s2">&quot;Helvetica&quot;</span><span class="p">,</span> <span class="ss">size</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span> <span class="ss">style</span><span class="p">:</span> <span class="ss">:bold</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">pad_bottom</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>          <span class="n">text</span> <span class="s2">&quot;Search Results&quot;</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>      <span class="n">entries</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">entry</span><span class="o">|</span>
+</span><span class='line'>        <span class="n">pad_bottom</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>          <span class="n">font</span><span class="p">(</span><span class="s2">&quot;Helvetica&quot;</span><span class="p">,</span> <span class="ss">style</span><span class="p">:</span> <span class="ss">:bold</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>            <span class="n">formatted_text</span> <span class="o">[</span><span class="p">{</span><span class="ss">text</span><span class="p">:</span> <span class="n">entry</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="ss">link</span><span class="p">:</span> <span class="n">polymorphic_url</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="ss">host</span><span class="p">:</span> <span class="n">host</span><span class="p">)}</span><span class="o">]</span>
+</span><span class='line'>          <span class="k">end</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="n">pad_bottom</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>          <span class="n">text</span> <span class="n">entry</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="n">indent_paragraphs</span><span class="p">:</span> <span class="mi">1</span><span class="o">.</span><span class="mi">5</span><span class="o">.</span><span class="n">cm</span>
+</span><span class='line'>        <span class="k">end</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+<p>Особо комментировать этот код не буду, как по мне, он говорит сам за
+себя; желающие могут обратиться к документации <a href="http://prawn.majesticseacreature.com/">на сайте</a>, там
+же есть мануал.</p>
+
+<p>Код действия, формирующего и отсылающего PDF-файл клиенту:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'>  <span class="k">def</span> <span class="nf">save</span>
+</span><span class='line'>    <span class="n">respond_to</span> <span class="k">do</span> <span class="o">|</span><span class="nb">format</span><span class="o">|</span>
+</span><span class='line'>      <span class="c1"># ... skipped ...</span>
+</span><span class='line'>      <span class="nb">format</span><span class="o">.</span><span class="n">pdf</span> <span class="k">do</span>
+</span><span class='line'>        <span class="n">query</span> <span class="o">=</span> <span class="n">restore_query</span> <span class="n">params</span><span class="o">[</span><span class="ss">:query</span><span class="o">]</span>
+</span><span class='line'>        <span class="n">reverted_query</span> <span class="o">=</span> <span class="n">revert_query</span> <span class="ss">query</span><span class="p">:</span> <span class="n">query</span>
+</span><span class='line'>        <span class="n">host</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">host_with_port</span>
+</span><span class='line'>        <span class="n">entries</span> <span class="o">=</span> <span class="c1"># ... skipped ...</span>
+</span><span class='line'>        <span class="n">send_data</span> <span class="no">SearchResults</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">reverted_query</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">host</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">,</span>
+</span><span class='line'>                  <span class="ss">filename</span><span class="p">:</span> <span class="s2">&quot;search.pdf&quot;</span><span class="p">,</span>
+</span><span class='line'>                  <span class="ss">type</span><span class="p">:</span> <span class="ss">:pdf</span><span class="p">,</span>
+</span><span class='line'>                  <span class="ss">disposition</span><span class="p">:</span> <span class="s2">&quot;attachment&quot;</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+<h1 id="toc_43">Заключение</h1>
+
+<p>С помощью библиотеки Prawn можно относительно легко генерировать простые
+(и не очень) PDF-файлы. Возможно, подход, выбранный создателями
+библиотеки (DSL), не самый оптимальный, но со своей задачей она
+справляется на отлично.</p>
+
+<p>Однако, я даю себе слово попробовать и подход с генерацией PDF из
+файлов, написанных на языках разметки ☺</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Сергей Максимов</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-06-21T18:17:00+11:00" pubdate data-updated="true">Jun 21<span>st</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/rails/'>Rails</a>, <a class='category' href='/blog/categories/ruby/'>Ruby</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://smaximov.github.io/blog/2013/06/21/generating-pdf-in-rails-with-prawn/" data-via="" data-counturl="http://smaximov.github.io/blog/2013/06/21/generating-pdf-in-rails-with-prawn/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/06/19/unit-testing-in-racket-with-rackunit/" title="Предыдущий пост: Юнит-тестирование в Racket: RackUnit">&laquo; Юнит-тестирование в Racket: RackUnit</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Недавнее</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/06/21/generating-pdf-in-rails-with-prawn/">Генерация PDF с помощью Prawn</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/19/unit-testing-in-racket-with-rackunit/">Юнит-тестирование в Racket: RackUnit</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/19/at-the-very-beginning/">Начало</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Сергей Максимов -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
