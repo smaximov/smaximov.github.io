@@ -33,7 +33,7 @@ end
 
 class Jekyll::MarkdownConverter
   def extensions
-    Hash[ *@config['redcarpet']['extensions'].map {|e| [e.to_sym, true] }.flatten ]
+    @extensions ||= Hash[ *@config['redcarpet']['extensions'].map {|e| [e.to_sym, true] }.flatten ]
   end
 
   def markdown
@@ -42,6 +42,12 @@ class Jekyll::MarkdownConverter
 
   def convert(content)
     return super unless @config['markdown'] == 'redcarpet2'
+#    if extensions[:with_toc_data]
+#      toc_renderer = Redcarpet::Render::HTML_TOC.new
+#      toc = Redcarpet::Markdown.new(toc_renderer, extensions).render(content)
+#      toc += markdown.render(content)
+#    else
     markdown.render(content)
+#    end
   end
 end
