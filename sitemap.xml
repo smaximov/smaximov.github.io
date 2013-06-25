@@ -2,19 +2,23 @@
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
         <loc>http://smaximov.github.io/blog/2013/06/19/at-the-very-beginning/</loc>
-        <lastmod>2013-06-20T20:38:29+11:00</lastmod>
+        <lastmod>2013-06-25T22:41:29+11:00</lastmod>
     </url>
     <url>
         <loc>http://smaximov.github.io/blog/2013/06/19/unit-testing-in-racket-with-rackunit/</loc>
-        <lastmod>2013-06-20T21:06:55+11:00</lastmod>
+        <lastmod>2013-06-25T22:41:29+11:00</lastmod>
     </url>
     <url>
         <loc>http://smaximov.github.io/blog/2013/06/21/generating-pdf-in-rails-with-prawn/</loc>
-        <lastmod>2013-06-21T19:09:28+11:00</lastmod>
+        <lastmod>2013-06-25T22:41:29+11:00</lastmod>
+    </url>
+    <url>
+        <loc>http://smaximov.github.io/blog/2013/06/25/add-categories-to-post-title/</loc>
+        <lastmod>2013-06-26T00:31:07+11:00</lastmod>
     </url>
     <url>
         <loc>http://smaximov.github.io/blog/archives/</loc>
-        <lastmod>2013-06-21T19:09:28+11:00</lastmod>
+        <lastmod>2013-06-26T00:31:07+11:00</lastmod>
     </url>
     <url>
         <loc>http://smaximov.github.io/robots.txt</loc>
@@ -22,6 +26,6 @@
     </url>
     <url>
         <loc>http://smaximov.github.io/</loc>
-        <lastmod>2013-06-21T19:09:28+11:00</lastmod>
+        <lastmod>2013-06-26T00:31:07+11:00</lastmod>
     </url>
 </urlset>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Jekyll | Без названия]]></title>
+  <link href="http://smaximov.github.io/blog/categories/jekyll/atom.xml" rel="self"/>
+  <link href="http://smaximov.github.io/"/>
+  <updated>2013-06-26T00:32:03+11:00</updated>
+  <id>http://smaximov.github.io/</id>
+  <author>
+    <name><![CDATA[Сергей Максимов]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Добавление категорий к заголовку поста]]></title>
+    <link href="http://smaximov.github.io/blog/2013/06/25/add-categories-to-post-title/"/>
+    <updated>2013-06-25T22:14:00+11:00</updated>
+    <id>http://smaximov.github.io/blog/2013/06/25/add-categories-to-post-title</id>
+    <content type="html"><![CDATA[<p>Решил вот немного изменить внешний вид блога и заодно разобраться в
+расположении и назначении стилевых файлов и шаблонов HTML в
+Octorpess/Jekyll.</p>
+
+<p>Изменения затрагивают подзаголовок поста, к которому я решил добавить
+список категорий. Шаблон списка категорий располагается в файле
+<code>source/_includes/post/categories.html</code>. Этот шаблон, соответственно,
+следует включить в шаблон <code>source/_includes/article.html</code> с помощью
+тега Liquid <code>include</code>:</p>
+
+<p>
+<code>html
+      ...
+      &lt;p class=&quot;meta&quot;&gt;
+        {% include post/date.html %}{{ time }}
+        {% if site.disqus_short_name and page.comments != false and post.comments != false and site.disqus_show_comment_count == true %}
+         | &lt;a href=&quot;{% if index %}{{ root_url }}{{ post.url }}{% endif %}#disqus_thread&quot;&gt;Comments&lt;/a&gt;
+        {% endif %}
+        {% include post/categories.html %}
+      &lt;/p&gt;
+      ...
+</code>
+</p>
+
+<p>И немного CSS в <code>sass/custom/_styles.scss</code>:</p>
+<div class="highlight"><pre><code class="scss"><span class="nt">article</span> <span class="o">&gt;</span> <span class="nt">header</span> <span class="nt">p</span><span class="nc">.meta</span> <span class="p">{</span>
+    <span class="nt">span</span><span class="nc">.categories</span> <span class="p">{</span>
+       <span class="na">text-transform</span><span class="o">:</span> <span class="no">none</span><span class="p">;</span>
+       <span class="nt">a</span><span class="nc">.category</span> <span class="p">{</span>
+          <span class="k">@extend</span> <span class="nc">.serif</span><span class="o">;</span>
+          <span class="nt">font-size</span><span class="nd">:</span> <span class="nt">1em</span><span class="o">;</span>
+          <span class="k">&amp;</span><span class="nd">:hover</span><span class="o">,</span> <span class="k">&amp;</span><span class="nd">:link</span><span class="o">,</span> <span class="k">&amp;</span><span class="nd">:visited</span><span class="o">,</span> <span class="k">&amp;</span><span class="nd">:active</span> <span class="p">{</span>
+             <span class="na">text-decoration</span><span class="o">:</span> <span class="no">none</span><span class="p">;</span>
+             <span class="na">color</span><span class="o">:</span> <span class="nv">$text-color-light</span><span class="p">;</span>
+          <span class="p">}</span>
+       <span class="p">}</span>
+    <span class="p">}</span>
+
+   <span class="nc">.separator</span> <span class="p">{</span>
+      <span class="na">color</span><span class="o">:</span> <span class="nf">darken</span><span class="p">(</span><span class="nv">$text-color-light</span><span class="o">,</span> <span class="mi">15</span><span class="p">);</span>
+   <span class="p">}</span>
+   <span class="nt">time</span> <span class="o">+</span> <span class="nn">#disqus_thread</span><span class="nd">:before</span><span class="o">,</span> <span class="nt">time</span> <span class="o">+</span> <span class="nc">.categories</span><span class="nd">:before</span><span class="o">,</span> <span class="nn">#disqus_thread</span> <span class="o">+</span> <span class="nc">.categories</span><span class="nd">:before</span> <span class="p">{</span>
+      <span class="k">@extend</span> <span class="nc">.separator</span><span class="o">;</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+</div>
+
+<p>Вуаля!</p>
+]]></content>
+  </entry>
+  
+</feed>
