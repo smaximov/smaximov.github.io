@@ -1,2 +1,23 @@
 // This File is imported last, and will override other styles in the cascade
 // Add styles here to make changes without digging in too much
+
+article > header p.meta {
+    span.categories {
+       text-transform: none;
+       a.category {
+          @extend .serif;
+          font-size: 1em;
+          &:hover, &:link, &:visited, &:active {
+             text-decoration: none;
+             color: $text-color-light;
+          }
+       }
+    }
+
+   .separator {
+      color: darken($text-color-light, 15);
+   }
+   time + #disqus_thread:before, time + .categories:before, #disqus_thread + .categories:before {
+      @extend .separator;
+   }
+}
