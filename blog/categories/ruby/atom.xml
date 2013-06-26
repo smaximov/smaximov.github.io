@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Ruby | Без названия]]></title>
+  <link href="http://smaximov.github.io/blog/categories/ruby/atom.xml" rel="self"/>
+  <link href="http://smaximov.github.io/"/>
+  <updated>2013-06-26T19:18:48+11:00</updated>
+  <id>http://smaximov.github.io/</id>
+  <author>
+    <name><![CDATA[Сергей Максимов]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Генерация PDF с помощью Prawn]]></title>
+    <link href="http://smaximov.github.io/blog/2013/06/21/generating-pdf-in-rails-with-prawn/"/>
+    <updated>2013-06-21T18:17:00+11:00</updated>
+    <id>http://smaximov.github.io/blog/2013/06/21/generating-pdf-in-rails-with-prawn</id>
+    <content type="html"><![CDATA[<ul id="markdown-toc">
+  <li><a href="#section">Введение</a></li>
+  <li><a href="#section-1">Установка и настройка</a></li>
+  <li><a href="#section-2">Использование</a></li>
+  <li><a href="#section-3">Заключение</a></li>
+</ul>
+
+<h1 id="section">Введение</h1>
+
+<p>Динамическое создание PDF — довольно распространенное задача.
+Для Ruby существует несколько библиотек для генерации с PDF-файлов,
+вот некоторые из них:</p>
+
+<ul>
+  <li>
+    <p><a href="https://github.com/pdfkit/pdfkit">PDFkit</a> — библиотека для конвертации HTML в PDF. Использует
+shell-утилиту <a href="http://code.google.com/p/wkhtmltopdf/">wkhtmltopdf</a>, которая, в свою очередь,
+использует webkit в качестве движка рендеринга;</p>
+  </li>
+  <li>
+    <p><a href="https://github.com/mileszs/wicked_pdf">Wicked pdf</a> — тоже конвертация HTML → PDF,
+тоже <a href="http://code.google.com/p/wkhtmltopdf/">wkhtmltopdf</a>;</p>
+  </li>
+  <li>
+    <p><a href="https://github.com/fnando/kitabu">Kitabu</a> — генерация PDF и e-Pub из Textile, Markdown
+или HTML;</p>
+  </li>
+  <li>
+    <p><a href="http://prawn.majesticseacreature.com/">Prawn</a> — библиотека для создания PDF-файлов,
+написанная на чистом Ruby.</p>
+  </li>
+</ul>
+
+<p>Таким образом, видны две тенденции: генерация PDF из какого-нибудь
+языка разметки либо использование DSL для генерации.</p>
+
+<p>Мой выбор пал на Prawn, о нем и будет рассказано в остальной части
+поста.</p>
+
+<!-- more -->
+
+<h1 id="section-1">Установка и настройка</h1>
+
+<p>Установка проста: добавьте следующую строку в <code>Gemfile</code>:</p>
+
+<p><code>ruby
+gem 'prawn'
+</code></p>
+
+<p>Затем нужно добавить в <code>config/application.rb</code> автозагрузку файлов из
+директории <code>/app/pdfs/</code>, в которой мы будем хранить классы, создающие
+PDF-файлы:</p>
+
+<p><code>ruby
+module Biotriz
+  class Application &lt; Rails::Application
+    config.autoload_paths &lt;&lt; "#{Rails.root}/app/pdfs"
+    # ... skipped ...
+  end
+end
+</code></p>
+
+<p>Далее зарегистрируем Mime-тип <code>:pdf</code> в
+<code>/config/initializers/mime_types.rb</code>:</p>
+
+<p><code>ruby
+Mime::Type.register 'application/pdf', :pdf
+</code></p>
+
+<p>Это позволит нам указывать тип <code>:pdf</code> в методе <code>send_data</code>, а также
+использовать его в блоке <code>respond_to</code>.</p>
+
+<h1 id="section-2">Использование</h1>
+
+<p>Код класса, создающего PDF:</p>
+
+<p>``` ruby app/pdfs/search_results.rb
+# encoding: utf-8</p>
+
+<p>require “prawn/measurement_extensions”</p>
+
+<p>class SearchResults &lt; Prawn::Document
+  include Rails.application.routes.url_helpers
+  include ActionDispatch::Routing::PolymorphicRoutes</p>
+
+<p>def initialize(query, entries, host)
+    super()
+    pad(20) do
+      font(“Helvetica”, size: 20, style: :bold) do
+        text “Search Results (#{Time.zone.now.strftime(‘%d/%m/%Y %H:%M’)})”
+      end
+    end</p>
+
+<pre><code>pad_bottom(20) do
+  font("Helvetica", size: 14, style: :bold) do
+    pad_bottom(5) do
+      text "Search Query"
+    end
+  end
+
+  query_output = []
+  first = false
+
+  query.try(:each) do |item|
+    color = item[:color][1..-1]
+    cls = item[:model].classify.constantize
+
+    item[:values].each do |value|
+      query_output &lt;&lt; {
+        text: "[#{value.title}]",
+        link: polymorphic_url(value, host: host)
+      }
+
+      if not first
+        query_output &lt;&lt; { text: "   " }
+        first = false
+      end
+    end
+  end
+
+  formatted_text query_output, leading: 10
+end
+
+pad_bottom(20) do
+  font("Helvetica", size: 14, style: :bold) do
+    pad_bottom(5) do
+      text "Search Results"
+    end
+  end
+  entries.each do |entry|
+    pad_bottom(10) do
+      font("Helvetica", style: :bold) do
+        formatted_text [{text: entry.title, link: polymorphic_url(entry, host: host)}]
+      end
+    end
+
+    pad_bottom(15) do
+      text entry.description, indent_paragraphs: 1.5.cm
+    end
+  end
+end   end end ```
+</code></pre>
+
+<p>Особо комментировать этот код не буду, как по мне, он говорит сам за
+себя; желающие могут обратиться к документации <a href="http://prawn.majesticseacreature.com/">на сайте</a>, там
+же есть мануал.</p>
+
+<p>Код действия, формирующего и отсылающего PDF-файл клиенту:</p>
+
+<p><code>ruby
+  def save
+    respond_to do |format|
+      # ... skipped ...
+      format.pdf do
+        query = restore_query params[:query]
+        reverted_query = revert_query query: query
+        host = request.host_with_port
+        entries = # ... skipped ...
+        send_data SearchResults.new(reverted_query, entries, host).render,
+                  filename: "search.pdf",
+                  type: :pdf,
+                  disposition: "attachment"
+      end
+    end
+  end
+</code></p>
+
+<h1 id="section-3">Заключение</h1>
+
+<p>С помощью библиотеки Prawn можно относительно легко генерировать простые
+(и не очень) PDF-файлы. Возможно, подход, выбранный создателями
+библиотеки (DSL), не самый оптимальный, но со своей задачей она
+справляется на отлично.</p>
+
+<p>Однако, я даю себе слово попробовать и подход с генерацией PDF из
+файлов, написанных на языках разметки ☺</p>
+
+]]></content>
+  </entry>
+  
+</feed>

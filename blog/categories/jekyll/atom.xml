@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Jekyll | Без названия]]></title>
+  <link href="http://smaximov.github.io/blog/categories/jekyll/atom.xml" rel="self"/>
+  <link href="http://smaximov.github.io/"/>
+  <updated>2013-06-26T19:18:48+11:00</updated>
+  <id>http://smaximov.github.io/</id>
+  <author>
+    <name><![CDATA[Сергей Максимов]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Kramdown в качестве процессора Markdown]]></title>
+    <link href="http://smaximov.github.io/blog/2013/06/26/switching-markdown-processor-to-kramdown/"/>
+    <updated>2013-06-26T18:57:00+11:00</updated>
+    <id>http://smaximov.github.io/blog/2013/06/26/switching-markdown-processor-to-kramdown</id>
+    <content type="html"><![CDATA[<p>Перевёл обработку Markdown на <a href="http://kramdown.rubyforge.org/index.html">Kramdown</a>. Что это (пока)
+дало: сноски и генерацию содержания. Стили для них взял (с небольшими
+изменениями)
+<a href="http://hiltmon.com/blog/2013/05/08/octopress-now-has-footnotes/">отсюда</a>
+и
+<a href="http://blog.riemann.cc/2013/04/10/table-of-contents-in-octopress/">отсюда</a>:</p>
+
+<p>``` scss sass/custom/_styles.scss
+#markdown-toc:before {
+   content: “Содержание”;
+   font-weight: bold;
+}
+ul#markdown-toc {
+   list-style: none;
+   float: right;
+   @include shadow-box;
+   background-color: white;
+}</p>
+
+<p>.footnotes {
+   font-size: 13px;
+   line-height: 16px;
+   color: #666;
+   border-top: 2px groove gray;
+   padding-top: 1em;</p>
+
+<p>ol {
+      padding-left: 2em;</p>
+
+<pre><code>  p {
+     margin-bottom: 6px;
+  }    } } ```
+</code></pre>
+
+<p>Для вставки содержания в тело поста нужно добавить атрибут <code>toc</code> к
+элементу списка, например:</p>
+
+<p>``` text
+* TOC</p>
+<p>```</p>
+
+<p>Простановка сносок похоже на простановку ссылок-сносок:</p>
+
+<p>``` text
+This is a text<sup id="fnref:fn"><a href="#fn:fn" rel="footnote">1</a></sup> with footnotes.</p>
+
+<p>…</p>
+
+<p>```</p>
+
+<p>В квадратных скобках с “птичкой” (caret) указывается идентификатор
+сноски, который должен быть уникальным в пределах одного документа.
+Идентификатор может состоять из цифр и букв. Текст ссылки
+задается где-нибудь в документе через двоеточие.</p>
+
+<hr />
+
+<p>Kramdown содержит кучю других расширений Markdown, их описание есть на
+<a href="http://kramdown.rubyforge.org/syntax.html">сайте</a>.</p>
+
+<p>Результат мне понравился (примечательно, что этот пост не содержит ни
+содержания, ни сносок).</p>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:fn">
+      <p>footnote text.<a href="#fnref:fn" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Добавление категорий к заголовку поста]]></title>
+    <link href="http://smaximov.github.io/blog/2013/06/25/add-categories-to-post-title/"/>
+    <updated>2013-06-25T22:14:00+11:00</updated>
+    <id>http://smaximov.github.io/blog/2013/06/25/add-categories-to-post-title</id>
+    <content type="html"><![CDATA[<p>Решил вот немного изменить внешний вид блога и заодно разобраться в
+расположении и назначении стилевых файлов и шаблонов HTML в
+Octorpess/Jekyll.</p>
+
+<p>Изменения затрагивают подзаголовок поста, к которому я решил добавить
+список категорий. Шаблон списка категорий располагается в файле
+<code>source/_includes/post/categories.html</code>. Этот шаблон, соответственно,
+следует включить в шаблон <code>source/_includes/article.html</code> с помощью
+тега Liquid <code>include</code>:</p>
+
+<p>
+<code>html
+      ...
+      &lt;p class="meta"&gt;
+        {% include post/date.html %}{{ time }}
+        {% if site.disqus_short_name and page.comments != false and post.comments != false and site.disqus_show_comment_count == true %}
+         | &lt;a href="{% if index %}{{ root_url }}{{ post.url }}{% endif %}#disqus_thread"&gt;Comments&lt;/a&gt;
+        {% endif %}
+        {% include post/categories.html %}
+      &lt;/p&gt;
+      ...
+</code>
+</p>
+
+<p>И немного CSS в <code>sass/custom/_styles.scss</code>:</p>
+
+<p>``` scss
+article &gt; header p.meta {
+    span.categories {
+       text-transform: none;
+       a.category {
+          @extend .serif;
+          font-size: 1em;
+          &amp;:hover, &amp;:link, &amp;:visited, &amp;:active {
+             text-decoration: none;
+             color: $text-color-light;
+          }
+       }
+    }</p>
+
+<p>.separator {
+      color: darken($text-color-light, 15);
+   }
+   time + #disqus_thread:before, time + .categories:before, #disqus_thread + .categories:before {
+      @extend .separator;
+   }
+}
+```</p>
+
+<p>Вуаля!</p>
+]]></content>
+  </entry>
+  
+</feed>

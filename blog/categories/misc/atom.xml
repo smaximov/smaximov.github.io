@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Misc | Без названия]]></title>
+  <link href="http://smaximov.github.io/blog/categories/misc/atom.xml" rel="self"/>
+  <link href="http://smaximov.github.io/"/>
+  <updated>2013-06-26T19:18:48+11:00</updated>
+  <id>http://smaximov.github.io/</id>
+  <author>
+    <name><![CDATA[Сергей Максимов]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Начало]]></title>
+    <link href="http://smaximov.github.io/blog/2013/06/19/at-the-very-beginning/"/>
+    <updated>2013-06-19T21:27:00+11:00</updated>
+    <id>http://smaximov.github.io/blog/2013/06/19/at-the-very-beginning</id>
+    <content type="html"><![CDATA[<p>Первая запись в блоге.</p>
+
+<p><code>cl
+(format t "Hello, World!")
+</code></p>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: 
+
+Sitemap: http://smaximov.github.io/sitemap.xml 
