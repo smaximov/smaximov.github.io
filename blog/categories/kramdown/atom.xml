@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Jekyll | Без названия]]></title>
-  <link href="http://smaximov.github.io/blog/categories/jekyll/atom.xml" rel="self"/>
+  <title><![CDATA[Category: Kramdown | Без названия]]></title>
+  <link href="http://smaximov.github.io/blog/categories/kramdown/atom.xml" rel="self"/>
   <link href="http://smaximov.github.io/"/>
   <updated>2013-06-26T19:18:48+11:00</updated>
   <id>http://smaximov.github.io/</id>
@@ -88,64 +88,6 @@ This is a text<sup id="fnref:fn"><a href="#fn:fn" rel="footnote">1</a></sup> wit
     </li>
   </ol>
 </div>
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[Добавление категорий к заголовку поста]]></title>
-    <link href="http://smaximov.github.io/blog/2013/06/25/add-categories-to-post-title/"/>
-    <updated>2013-06-25T22:14:00+11:00</updated>
-    <id>http://smaximov.github.io/blog/2013/06/25/add-categories-to-post-title</id>
-    <content type="html"><![CDATA[<p>Решил вот немного изменить внешний вид блога и заодно разобраться в
-расположении и назначении стилевых файлов и шаблонов HTML в
-Octorpess/Jekyll.</p>
-
-<p>Изменения затрагивают подзаголовок поста, к которому я решил добавить
-список категорий. Шаблон списка категорий располагается в файле
-<code>source/_includes/post/categories.html</code>. Этот шаблон, соответственно,
-следует включить в шаблон <code>source/_includes/article.html</code> с помощью
-тега Liquid <code>include</code>:</p>
-
-<p>
-<code>html
-      ...
-      &lt;p class="meta"&gt;
-        {% include post/date.html %}{{ time }}
-        {% if site.disqus_short_name and page.comments != false and post.comments != false and site.disqus_show_comment_count == true %}
-         | &lt;a href="{% if index %}{{ root_url }}{{ post.url }}{% endif %}#disqus_thread"&gt;Comments&lt;/a&gt;
-        {% endif %}
-        {% include post/categories.html %}
-      &lt;/p&gt;
-      ...
-</code>
-</p>
-
-<p>И немного CSS в <code>sass/custom/_styles.scss</code>:</p>
-
-<p>``` scss
-article &gt; header p.meta {
-    span.categories {
-       text-transform: none;
-       a.category {
-          @extend .serif;
-          font-size: 1em;
-          &amp;:hover, &amp;:link, &amp;:visited, &amp;:active {
-             text-decoration: none;
-             color: $text-color-light;
-          }
-       }
-    }</p>
-
-<p>.separator {
-      color: darken($text-color-light, 15);
-   }
-   time + #disqus_thread:before, time + .categories:before, #disqus_thread + .categories:before {
-      @extend .separator;
-   }
-}
-```</p>
-
-<p>Вуаля!</p>
 ]]></content>
   </entry>
   

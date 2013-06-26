@@ -6,19 +6,25 @@
     </url>
     <url>
         <loc>http://smaximov.github.io/blog/2013/06/19/unit-testing-in-racket-with-rackunit/</loc>
-        <lastmod>2013-06-25T22:41:29+11:00</lastmod>
+        <lastmod>2013-06-26T18:18:01+11:00</lastmod>
     </url>
     <url>
         <loc>http://smaximov.github.io/blog/2013/06/21/generating-pdf-in-rails-with-prawn/</loc>
-        <lastmod>2013-06-25T22:41:29+11:00</lastmod>
+        <lastmod>2013-06-26T18:30:21+11:00</lastmod>
     </url>
     <url>
         <loc>http://smaximov.github.io/blog/2013/06/25/add-categories-to-post-title/</loc>
         <lastmod>2013-06-26T00:33:49+11:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://smaximov.github.io/blog/2013/06/26/switching-markdown-processor-to-kramdown/
+        </loc>
+        <lastmod>2013-06-26T19:18:06+11:00</lastmod>
+    </url>
+    <url>
         <loc>http://smaximov.github.io/blog/archives/</loc>
-        <lastmod>2013-06-26T00:33:49+11:00</lastmod>
+        <lastmod>2013-06-26T19:18:06+11:00</lastmod>
     </url>
     <url>
         <loc>http://smaximov.github.io/robots.txt</loc>
@@ -26,6 +32,6 @@
     </url>
     <url>
         <loc>http://smaximov.github.io/</loc>
-        <lastmod>2013-06-26T00:33:49+11:00</lastmod>
+        <lastmod>2013-06-26T19:18:06+11:00</lastmod>
     </url>
 </urlset>
