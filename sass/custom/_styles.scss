@@ -33,6 +33,10 @@ ul#markdown-toc {
    background-color: white;
 }
 
+.blog-index #markdown-toc {
+   display: none;
+}
+
 .footnotes {
    font-size: 13px;
    line-height: 16px;
