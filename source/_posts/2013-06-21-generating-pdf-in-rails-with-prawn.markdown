@@ -8,6 +8,9 @@ categories:
     - Ruby
 ---
 
+* TOC
+{:toc}
+
 Введение
 ========
 
@@ -73,7 +76,7 @@ Mime::Type.register 'application/pdf', :pdf
 
 Код класса, создающего PDF:
 
-``` ruby
+``` ruby app/pdfs/search_results.rb
 # encoding: utf-8
 
 require "prawn/measurement_extensions"
@@ -176,6 +179,7 @@ end
 
 Однако, я даю себе слово попробовать и подход с генерацией PDF из
 файлов, написанных на языках разметки ☺
+
 [wkhtmltopdf]: http://code.google.com/p/wkhtmltopdf/
 
 [pdfkit]: https://github.com/pdfkit/pdfkit

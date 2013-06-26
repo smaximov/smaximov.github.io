@@ -21,3 +21,30 @@ article > header p.meta {
       @extend .separator;
    }
 }
+
+#markdown-toc:before {
+   content: "Содержание";
+   font-weight: bold;
+}
+ul#markdown-toc {
+   list-style: none;
+   float: right;
+   @include shadow-box;
+   background-color: white;
+}
+
+.footnotes {
+   font-size: 13px;
+   line-height: 16px;
+   color: #666;
+   border-top: 2px groove gray;
+   padding-top: 1em;
+
+   ol {
+      padding-left: 2em;
+
+      p {
+         margin-bottom: 6px;
+      }
+   }
+}

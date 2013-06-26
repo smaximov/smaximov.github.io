@@ -9,6 +9,9 @@ categories:
 - RackUnit
 ---
 
+* TOC
+{:toc}
+
 Введение
 ========
 
@@ -20,7 +23,7 @@ _Юнит-тестирование_ &mdash; это процесс проверк
 
 Подробнее о юнит-тестировании можно узнать [здесь][unit-testing].
 
-<mark>Disclaimer</mark>: по большей части этот пост представляет собой выборочный
+Disclaimer: по большей части этот пост представляет собой выборочный
 перевод официальной документации.
 
 Юнит-тестирование в Racket
@@ -48,9 +51,6 @@ Case'ов и других Test Suite'ов; их выполнение отлож�
 ```
 
 <!-- more -->
-
-[rackunit-philosophy]: http://docs.racket-lang.org/rackunit/philosophy.html "RackUnit Philosophy"
-
 
 Простые проверки
 ----------------
@@ -155,10 +155,6 @@ Case'а; это имя будет выведено, если тест завер
 Существует несколько вспомогательных процедур для объявления Test
 Cases, информацию о них можно посмотреть в
 [документации][rackunit-test-cases].
-
-[rackunit-test-cases]:
-http://docs.racket-lang.org/rackunit/api.html#(part._.Test_.Cases)
-"RackUnit Test Cases Documentation"
 
 
 Test Suites
@@ -273,3 +269,8 @@ RackUnit предоставляет текстовый и графический
 [rackunit]: http://docs.racket-lang.org/rackunit/ "RackUnit Documentation"
 
 [rackunit-checks]: http://docs.racket-lang.org/rackunit/api.html#(part._.Checks) "RackUnit Checks Documentation"
+
+[rackunit-philosophy]: http://docs.racket-lang.org/rackunit/philosophy.html "RackUnit Philosophy"
+
+[rackunit-test-cases]: http://docs.racket-lang.org/rackunit/api.html#(part._.Test_.Cases)
+"RackUnit Test Cases Documentation"
