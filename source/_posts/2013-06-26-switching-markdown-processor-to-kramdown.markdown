@@ -29,6 +29,12 @@ ul#markdown-toc {
    background-color: white;
 }
 
+.blog-index {
+   #markdown-toc, sup[id^=fnref], .footnotes {
+      display: none;
+   }
+}
+
 .footnotes {
    font-size: 13px;
    line-height: 16px;
