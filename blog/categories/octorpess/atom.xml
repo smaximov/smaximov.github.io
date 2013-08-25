@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Octorpess | Без названия]]></title>
   <link href="http://smaximov.github.io/blog/categories/octorpess/atom.xml" rel="self"/>
   <link href="http://smaximov.github.io/"/>
-  <updated>2013-06-27T00:24:11+11:00</updated>
+  <updated>2013-08-25T16:06:12+11:00</updated>
   <id>http://smaximov.github.io/</id>
   <author>
     <name><![CDATA[Сергей Максимов]]></name>
@@ -35,6 +35,12 @@ ul#markdown-toc {
    float: right;
    @include shadow-box;
    background-color: white;
+}</p>
+
+<p>.blog-index {
+   #markdown-toc, sup[id^=fnref], .footnotes {
+      display: none;
+   }
 }</p>
 
 <p>.footnotes {
