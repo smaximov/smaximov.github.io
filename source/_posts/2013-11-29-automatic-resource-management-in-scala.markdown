@@ -102,7 +102,7 @@ Implicits
 
 Допустим, вместо метода `close` трейт `Exchange` предоставляет метод
 `cleanup`. Создадим _trait_ `Managed`, для которого определим метод
-`using` в соответствующем compainon-объекте:
+`using` в соответствующем companion-объекте:
 
 ``` scala
 trait Managed[T] {
