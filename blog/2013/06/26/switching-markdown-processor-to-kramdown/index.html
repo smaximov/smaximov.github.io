@@ -138,6 +138,12 @@
 <span class="line-number">24</span>
 <span class="line-number">25</span>
 <span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
 </pre></td><td class="code"><pre><code class="scss"><span class="line"><span class="nn">#markdown-toc</span><span class="nd">:before</span> <span class="p">{</span>
 </span><span class="line">   <span class="na">content</span><span class="o">:</span> <span class="s2">&quot;Содержание&quot;</span><span class="p">;</span>
 </span><span class="line">   <span class="na">font-weight</span><span class="o">:</span> <span class="no">bold</span><span class="p">;</span>
@@ -147,6 +153,12 @@
 </span><span class="line">   <span class="na">float</span><span class="o">:</span> <span class="no">right</span><span class="p">;</span>
 </span><span class="line">   <span class="k">@include</span><span class="nd"> shadow-box</span><span class="p">;</span>
 </span><span class="line">   <span class="na">background-color</span><span class="o">:</span> <span class="nb">white</span><span class="p">;</span>
+</span><span class="line"><span class="p">}</span>
+</span><span class="line">
+</span><span class="line"><span class="nc">.blog-index</span> <span class="p">{</span>
+</span><span class="line">   <span class="nn">#markdown-toc</span><span class="o">,</span> <span class="nt">sup</span><span class="o">[</span><span class="nt">id</span><span class="o">^=</span><span class="nt">fnref</span><span class="o">],</span> <span class="nc">.footnotes</span> <span class="p">{</span>
+</span><span class="line">      <span class="na">display</span><span class="o">:</span> <span class="no">none</span><span class="p">;</span>
+</span><span class="line">   <span class="p">}</span>
 </span><span class="line"><span class="p">}</span>
 </span><span class="line">
 </span><span class="line"><span class="nc">.footnotes</span> <span class="p">{</span>
@@ -191,7 +203,7 @@
 
 <p>В квадратных скобках с “птичкой” (caret) указывается идентификатор
 сноски, который должен быть уникальным в пределах одного документа.
-Идентификатор может состоять из цифр и букв. Текст ссылки
+Идентификатор может состоять из цифр и букв. Текст сноски
 задается где-нибудь в документе через двоеточие.</p>
 
 <hr />
