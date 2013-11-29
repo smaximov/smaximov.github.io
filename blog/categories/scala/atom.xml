@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Scala | Без названия]]></title>
   <link href="http://smaximov.github.io/blog/categories/scala/atom.xml" rel="self"/>
   <link href="http://smaximov.github.io/"/>
-  <updated>2013-11-29T15:48:17+11:00</updated>
+  <updated>2013-11-29T15:53:38+11:00</updated>
   <id>http://smaximov.github.io/</id>
   <author>
     <name><![CDATA[Сергей Максимов]]></name>
@@ -117,7 +117,7 @@ object Managed {
 
 <p>Допустим, вместо метода <code>close</code> трейт <code>Exchange</code> предоставляет метод
 <code>cleanup</code>. Создадим <em>trait</em> <code>Managed</code>, для которого определим метод
-<code>using</code> в соответствующем compainon-объекте:</p>
+<code>using</code> в соответствующем companion-объекте:</p>
 
 <p>``` scala
 trait Managed[T] {
