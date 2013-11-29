@@ -9,11 +9,7 @@
   <meta name="author" content="Сергей Максимов">
 
   
-  <meta name="description" content="Перевёл обработку Markdown на Kramdown. Что это (пока)
-дало: сноски и генерацию содержания. Стили для них взял (с небольшими
-изменениями)
-отсюда
-и &hellip;">
+  <meta name="description" content="Введение Решение Первое приближение Обобщённый статический метод Implicits Введение Решал вчера задание NodeScala для курса реактивного &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -70,6 +66,83 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2013/11/29/automatic-resource-management-in-scala/">Automatic Resource Management in Scala</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-29T14:09:00+11:00" pubdate data-updated="true">Nov 29<span>th</span>, 2013</time>
+        
+        
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/scala/'>Scala</a>
+  
+</span>
+
+
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul id="markdown-toc">
+  <li><a href="#section">Введение</a></li>
+  <li><a href="#section-1">Решение</a>    <ul>
+      <li><a href="#section-2">Первое приближение</a></li>
+      <li><a href="#section-3">Обобщённый статический метод</a></li>
+      <li><a href="#implicits">Implicits</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="section">Введение</h1>
+
+<p>Решал вчера задание NodeScala для курса реактивного программирования
+на Scala<sup id="fnref:rx"><a href="#fn:rx" rel="footnote">1</a></sup>. Часть задания состояла в реализации <em>trait</em>
+<code>Exchange</code>, содержащего методы <code>write</code> и <code>close</code>. Метод <code>write</code>
+выполнял запись строки в ответ (<em>response</em>) сервера, а метод
+<code>close</code> закрывал объект после использования. В инструкции к заданию
+было обращено особое внимание на необходимость закрытия объекта:</p>
+
+<blockquote>
+  <p>The trait <code>Exchange</code> is used to write your response back to the user using the <code>write</code> method. Whenever you use it, don’t forget to close it by calling the <code>close</code> method.</p>
+</blockquote>
+
+<p>Как можно догадаться, в конце концов именно это я и забыл сделать. В
+результате около часа было потрачено на поиск ошибки. Это навело меня
+на мысль, что было бы неплохо воспользоваться богатыми возможностями
+Scala для реализации автоматического управления ресурсами (готовые
+решения меня по понятной причине не интересовали).</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2013/11/29/automatic-resource-management-in-scala/">Читать дальше &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -591,6 +664,10 @@ Case’ов и других Test Suite’ов; их выполнение отл�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2013/11/29/automatic-resource-management-in-scala/">Automatic Resource Management in Scala</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/06/26/switching-markdown-processor-to-kramdown/">Kramdown в качестве процессора Markdown</a>
       </li>
     
@@ -604,10 +681,6 @@ Case’ов и других Test Suite’ов; их выполнение отл�
     
       <li class="post">
         <a href="/blog/2013/06/19/unit-testing-in-racket-with-rackunit/">Юнит-тестирование в Racket: RackUnit</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/06/19/at-the-very-beginning/">Начало</a>
       </li>
     
   </ul>

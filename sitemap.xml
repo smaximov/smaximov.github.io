@@ -23,8 +23,14 @@
         <lastmod>2013-06-29T23:45:18+11:00</lastmod>
     </url>
     <url>
+        <loc>
+            http://smaximov.github.io/blog/2013/11/29/automatic-resource-management-in-scala/
+        </loc>
+        <lastmod>2013-11-29T15:43:34+11:00</lastmod>
+    </url>
+    <url>
         <loc>http://smaximov.github.io/blog/archives/</loc>
-        <lastmod>2013-08-25T16:01:55+11:00</lastmod>
+        <lastmod>2013-11-29T15:43:34+11:00</lastmod>
     </url>
     <url>
         <loc>http://smaximov.github.io/robots.txt</loc>
@@ -32,6 +38,6 @@
     </url>
     <url>
         <loc>http://smaximov.github.io/</loc>
-        <lastmod>2013-08-25T16:01:55+11:00</lastmod>
+        <lastmod>2013-11-29T15:43:34+11:00</lastmod>
     </url>
 </urlset>

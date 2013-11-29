@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Scala | Без названия]]></title>
+  <link href="http://smaximov.github.io/blog/categories/scala/atom.xml" rel="self"/>
+  <link href="http://smaximov.github.io/"/>
+  <updated>2013-11-29T15:48:17+11:00</updated>
+  <id>http://smaximov.github.io/</id>
+  <author>
+    <name><![CDATA[Сергей Максимов]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Automatic Resource Management in Scala]]></title>
+    <link href="http://smaximov.github.io/blog/2013/11/29/automatic-resource-management-in-scala/"/>
+    <updated>2013-11-29T14:09:00+11:00</updated>
+    <id>http://smaximov.github.io/blog/2013/11/29/automatic-resource-management-in-scala</id>
+    <content type="html"><![CDATA[<ul id="markdown-toc">
+  <li><a href="#section">Введение</a></li>
+  <li><a href="#section-1">Решение</a>    <ul>
+      <li><a href="#section-2">Первое приближение</a></li>
+      <li><a href="#section-3">Обобщённый статический метод</a></li>
+      <li><a href="#implicits">Implicits</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="section">Введение</h1>
+
+<p>Решал вчера задание NodeScala для курса реактивного программирования
+на Scala<sup id="fnref:rx"><a href="#fn:rx" rel="footnote">1</a></sup>. Часть задания состояла в реализации <em>trait</em>
+<code>Exchange</code>, содержащего методы <code>write</code> и <code>close</code>. Метод <code>write</code>
+выполнял запись строки в ответ (<em>response</em>) сервера, а метод
+<code>close</code> закрывал объект после использования. В инструкции к заданию
+было обращено особое внимание на необходимость закрытия объекта:</p>
+
+<blockquote>
+  <p>The trait <code>Exchange</code> is used to write your response back to the user using the <code>write</code> method. Whenever you use it, don’t forget to close it by calling the <code>close</code> method.</p>
+</blockquote>
+
+<p>Как можно догадаться, в конце концов именно это я и забыл сделать. В
+результате около часа было потрачено на поиск ошибки. Это навело меня
+на мысль, что было бы неплохо воспользоваться богатыми возможностями
+Scala для реализации автоматического управления ресурсами (готовые
+решения меня по понятной причине не интересовали).</p>
+
+<!-- more -->
+
+<h1 id="section-1">Решение</h1>
+
+<p>Наиболее логичное решение, которое пришло мне в голову: написать
+метод, который будет принимать блок кода, выполнять его, а затем
+закрывать объект.</p>
+
+<h2 id="section-2">Первое приближение</h2>
+
+<p>Сначала я реализовал этот метод внутри <code>Exchange</code>:</p>
+
+<p><code>scala
+  def closeAfter(block: =&gt; Unit) {
+    try block
+    finally close()
+  }
+</code></p>
+
+<p>Теперь <code>Exchange</code> можно использовать так:</p>
+
+<p>``` scala
+  val x: Exchange = Exchange()</p>
+
+<p>x closeAfter {
+    x write “foo”
+  }
+```</p>
+
+<p>Недостаток такого решения очевиден: оно не универсально. Для другого
+класса (трейта) нужно будет заново писать такой метод.</p>
+
+<h2 id="section-3">Обобщённый статический метод</h2>
+
+<p>Создадим объект <code>Managed</code>, который определяет метод <code>using</code>,
+который принимает объект с методом <code>close</code> и закрывает его после того,
+как выполнит блок.</p>
+
+<p>``` scala
+object Managed {
+  type Closable = { def close(): Unit }</p>
+
+<p>def using<a href="that: Closable">U</a>(block: =&gt; U): U = {
+    try block
+    finally that.close()
+  }
+}
+```</p>
+
+<p>Использование метода:</p>
+
+<p>``` scala
+  import Managed.using
+  val x: Exchange = Exchange()</p>
+
+<p>using(x) {
+    x write “foo”
+  }
+```</p>
+
+<p>Теперь мы можем работать со всеми классами, у которых есть метод
+<code>close</code>.</p>
+
+<p>Но что делать, если у некоторого класса этот метод называется
+по-другому? Тут на помощь приходят <em>imlicit conversions</em>.</p>
+
+<h2 id="implicits">Implicits</h2>
+
+<p>Допустим, вместо метода <code>close</code> трейт <code>Exchange</code> предоставляет метод
+<code>cleanup</code>. Создадим <em>trait</em> <code>Managed</code>, для которого определим метод
+<code>using</code> в соответствующем compainon-объекте:</p>
+
+<p>``` scala
+trait Managed[T] {
+  def onClose(): Unit
+}</p>
+
+<p>object Managed {
+  // …</p>
+
+<p>def using<a href="that: Managed[T]">T, U</a>(block: =&gt; U): U = {
+    try block
+    finally that.onClose()
+  }
+}
+```</p>
+
+<p>Определим управляемый класс для <code>Exchange</code> и функцию неявного преобразования:</p>
+
+<p>``` scala
+class ManagedExchange(exchange: Exchange) extends Managed[Exchange] {
+  def onClose() {
+    exchange.cleanup()
+  }
+}</p>
+
+<p>object ExchangeImplicits {
+  implicit def Exchange2Managed(e: Exchange) = new ManagedExchange(e)
+}
+```</p>
+
+<p>Осталось только добавить импорт неявных преобразований, определённых в
+<code>ExchangeImplicits</code>:</p>
+
+<p>``` scala
+  import Managed.using
+  import ExchangeImplicits._
+  val x: Exchange = Exchange()</p>
+
+<p>using(x) {
+    x write “foo”
+  }
+```</p>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:rx">
+      <p><a href="https://class.coursera.org/reactive-001/class/index">Principles of Reactive Programming</a> by Erik Mejer, Martin Odersky, Roland Kuhn на <a href="http://coursera.org" title="Coursera">Coursera</a><a href="#fnref:rx" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+]]></content>
+  </entry>
+  
+</feed>

@@ -1,0 +1,422 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Automatic Resource Management in Scala - Без названия</title>
+  <meta name="author" content="Сергей Максимов">
+
+  
+  <meta name="description" content="Введение Решение Первое приближение Обобщённый статический метод Implicits Введение Решал вчера задание NodeScala для курса реактивного &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://smaximov.github.io/blog/2013/11/29/automatic-resource-management-in-scala">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Без названия" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Без названия</a></h1>
+  
+    <h2>Блог о языках программирования, технологиях и прочих (не)интересных вещах</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:smaximov.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Поиск..."/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Блог</a></li>
+  <li><a href="/blog/archives">Архив</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Automatic Resource Management in Scala</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-29T14:09:00+11:00" pubdate data-updated="true">Nov 29<span>th</span>, 2013</time>
+        
+        
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/scala/'>Scala</a>
+  
+</span>
+
+
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><ul id="markdown-toc">
+  <li><a href="#section">Введение</a></li>
+  <li><a href="#section-1">Решение</a>    <ul>
+      <li><a href="#section-2">Первое приближение</a></li>
+      <li><a href="#section-3">Обобщённый статический метод</a></li>
+      <li><a href="#implicits">Implicits</a></li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="section">Введение</h1>
+
+<p>Решал вчера задание NodeScala для курса реактивного программирования
+на Scala<sup id="fnref:rx"><a href="#fn:rx" rel="footnote">1</a></sup>. Часть задания состояла в реализации <em>trait</em>
+<code>Exchange</code>, содержащего методы <code>write</code> и <code>close</code>. Метод <code>write</code>
+выполнял запись строки в ответ (<em>response</em>) сервера, а метод
+<code>close</code> закрывал объект после использования. В инструкции к заданию
+было обращено особое внимание на необходимость закрытия объекта:</p>
+
+<blockquote>
+  <p>The trait <code>Exchange</code> is used to write your response back to the user using the <code>write</code> method. Whenever you use it, don’t forget to close it by calling the <code>close</code> method.</p>
+</blockquote>
+
+<p>Как можно догадаться, в конце концов именно это я и забыл сделать. В
+результате около часа было потрачено на поиск ошибки. Это навело меня
+на мысль, что было бы неплохо воспользоваться богатыми возможностями
+Scala для реализации автоматического управления ресурсами (готовые
+решения меня по понятной причине не интересовали).</p>
+
+<!-- more -->
+
+<h1 id="section-1">Решение</h1>
+
+<p>Наиболее логичное решение, которое пришло мне в голову: написать
+метод, который будет принимать блок кода, выполнять его, а затем
+закрывать объект.</p>
+
+<h2 id="section-2">Первое приближение</h2>
+
+<p>Сначала я реализовал этот метод внутри <code>Exchange</code>:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line">  <span class="k">def</span> <span class="n">closeAfter</span><span class="o">(</span><span class="n">block</span><span class="k">:</span> <span class="o">=&gt;</span> <span class="nc">Unit</span><span class="o">)</span> <span class="o">{</span>
+</span><span class="line">    <span class="k">try</span> <span class="n">block</span>
+</span><span class="line">    <span class="k">finally</span> <span class="n">close</span><span class="o">()</span>
+</span><span class="line">  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Теперь <code>Exchange</code> можно использовать так:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line">  <span class="k">val</span> <span class="n">x</span><span class="k">:</span> <span class="kt">Exchange</span> <span class="o">=</span> <span class="nc">Exchange</span><span class="o">()</span>
+</span><span class="line">
+</span><span class="line">  <span class="n">x</span> <span class="n">closeAfter</span> <span class="o">{</span>
+</span><span class="line">    <span class="n">x</span> <span class="n">write</span> <span class="s">&quot;foo&quot;</span>
+</span><span class="line">  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Недостаток такого решения очевиден: оно не универсально. Для другого
+класса (трейта) нужно будет заново писать такой метод.</p>
+
+<h2 id="section-3">Обобщённый статический метод</h2>
+
+<p>Создадим объект <code>Managed</code>, который определяет метод <code>using</code>,
+который принимает объект с методом <code>close</code> и закрывает его после того,
+как выполнит блок.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="k">object</span> <span class="nc">Managed</span> <span class="o">{</span>
+</span><span class="line">  <span class="k">type</span> <span class="kt">Closable</span> <span class="o">=</span> <span class="o">{</span> <span class="k">def</span> <span class="n">close</span><span class="o">()</span><span class="k">:</span> <span class="kt">Unit</span> <span class="o">}</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="n">using</span><span class="o">[</span><span class="kt">U</span><span class="o">](</span><span class="n">that</span><span class="k">:</span> <span class="kt">Closable</span><span class="o">)(</span><span class="n">block</span><span class="k">:</span> <span class="o">=&gt;</span> <span class="n">U</span><span class="o">)</span><span class="k">:</span> <span class="kt">U</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class="line">    <span class="k">try</span> <span class="n">block</span>
+</span><span class="line">    <span class="k">finally</span> <span class="n">that</span><span class="o">.</span><span class="n">close</span><span class="o">()</span>
+</span><span class="line">  <span class="o">}</span>
+</span><span class="line"><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Использование метода:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line">  <span class="k">import</span> <span class="nn">Managed.using</span>
+</span><span class="line">  <span class="k">val</span> <span class="n">x</span><span class="k">:</span> <span class="kt">Exchange</span> <span class="o">=</span> <span class="nc">Exchange</span><span class="o">()</span>
+</span><span class="line">
+</span><span class="line">  <span class="n">using</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="o">{</span>
+</span><span class="line">    <span class="n">x</span> <span class="n">write</span> <span class="s">&quot;foo&quot;</span>
+</span><span class="line">  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Теперь мы можем работать со всеми классами, у которых есть метод
+<code>close</code>.</p>
+
+<p>Но что делать, если у некоторого класса этот метод называется
+по-другому? Тут на помощь приходят <em>imlicit conversions</em>.</p>
+
+<h2 id="implicits">Implicits</h2>
+
+<p>Допустим, вместо метода <code>close</code> трейт <code>Exchange</code> предоставляет метод
+<code>cleanup</code>. Создадим <em>trait</em> <code>Managed</code>, для которого определим метод
+<code>using</code> в соответствующем compainon-объекте:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="k">trait</span> <span class="nc">Managed</span><span class="o">[</span><span class="kt">T</span><span class="o">]</span> <span class="o">{</span>
+</span><span class="line">  <span class="k">def</span> <span class="n">onClose</span><span class="o">()</span><span class="k">:</span> <span class="kt">Unit</span>
+</span><span class="line"><span class="o">}</span>
+</span><span class="line">
+</span><span class="line"><span class="k">object</span> <span class="nc">Managed</span> <span class="o">{</span>
+</span><span class="line">  <span class="c1">// ...</span>
+</span><span class="line">
+</span><span class="line">  <span class="k">def</span> <span class="n">using</span><span class="o">[</span><span class="kt">T</span>, <span class="kt">U</span><span class="o">](</span><span class="n">that</span><span class="k">:</span> <span class="kt">Managed</span><span class="o">[</span><span class="kt">T</span><span class="o">])(</span><span class="n">block</span><span class="k">:</span> <span class="o">=&gt;</span> <span class="n">U</span><span class="o">)</span><span class="k">:</span> <span class="kt">U</span> <span class="o">=</span> <span class="o">{</span>
+</span><span class="line">    <span class="k">try</span> <span class="n">block</span>
+</span><span class="line">    <span class="k">finally</span> <span class="n">that</span><span class="o">.</span><span class="n">onClose</span><span class="o">()</span>
+</span><span class="line">  <span class="o">}</span>
+</span><span class="line"><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Определим управляемый класс для <code>Exchange</code> и функцию неявного преобразования:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line"><span class="k">class</span> <span class="nc">ManagedExchange</span><span class="o">(</span><span class="n">exchange</span><span class="k">:</span> <span class="kt">Exchange</span><span class="o">)</span> <span class="k">extends</span> <span class="nc">Managed</span><span class="o">[</span><span class="kt">Exchange</span><span class="o">]</span> <span class="o">{</span>
+</span><span class="line">  <span class="k">def</span> <span class="n">onClose</span><span class="o">()</span> <span class="o">{</span>
+</span><span class="line">    <span class="n">exchange</span><span class="o">.</span><span class="n">cleanup</span><span class="o">()</span>
+</span><span class="line">  <span class="o">}</span>
+</span><span class="line"><span class="o">}</span>
+</span><span class="line">
+</span><span class="line"><span class="k">object</span> <span class="nc">ExchangeImplicits</span> <span class="o">{</span>
+</span><span class="line">  <span class="k">implicit</span> <span class="k">def</span> <span class="nc">Exchange2Managed</span><span class="o">(</span><span class="n">e</span><span class="k">:</span> <span class="kt">Exchange</span><span class="o">)</span> <span class="k">=</span> <span class="k">new</span> <span class="nc">ManagedExchange</span><span class="o">(</span><span class="n">e</span><span class="o">)</span>
+</span><span class="line"><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Осталось только добавить импорт неявных преобразований, определённых в
+<code>ExchangeImplicits</code>:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+</pre></td><td class="code"><pre><code class="scala"><span class="line">  <span class="k">import</span> <span class="nn">Managed.using</span>
+</span><span class="line">  <span class="k">import</span> <span class="nn">ExchangeImplicits._</span>
+</span><span class="line">  <span class="k">val</span> <span class="n">x</span><span class="k">:</span> <span class="kt">Exchange</span> <span class="o">=</span> <span class="nc">Exchange</span><span class="o">()</span>
+</span><span class="line">
+</span><span class="line">  <span class="n">using</span><span class="o">(</span><span class="n">x</span><span class="o">)</span> <span class="o">{</span>
+</span><span class="line">    <span class="n">x</span> <span class="n">write</span> <span class="s">&quot;foo&quot;</span>
+</span><span class="line">  <span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:rx">
+      <p><a href="https://class.coursera.org/reactive-001/class/index">Principles of Reactive Programming</a> by Erik Mejer, Martin Odersky, Roland Kuhn на <a href="http://coursera.org" title="Coursera">Coursera</a><a href="#fnref:rx" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Сергей Максимов</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2013-11-29T14:09:00+11:00" pubdate data-updated="true">Nov 29<span>th</span>, 2013</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/scala/'>Scala</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://smaximov.github.io/blog/2013/11/29/automatic-resource-management-in-scala/" data-via="" data-counturl="http://smaximov.github.io/blog/2013/11/29/automatic-resource-management-in-scala/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/06/26/switching-markdown-processor-to-kramdown/" title="Предыдущий пост: Kramdown в качестве процессора Markdown">&laquo; Kramdown в качестве процессора Markdown</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Недавнее</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2013/11/29/automatic-resource-management-in-scala/">Automatic Resource Management in Scala</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/26/switching-markdown-processor-to-kramdown/">Kramdown в качестве процессора Markdown</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/25/add-categories-to-post-title/">Добавление категорий к заголовку поста</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/21/generating-pdf-in-rails-with-prawn/">Генерация PDF с помощью Prawn</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/19/unit-testing-in-racket-with-rackunit/">Юнит-тестирование в Racket: RackUnit</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2013 - Сергей Максимов -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> -
+  <span class="credit">Generated by <a href="http://jekyllrb.com/">Jeckyll</a></span> -
+  <span class="credit">Hosted by <a href="https://github.com/">Github</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
