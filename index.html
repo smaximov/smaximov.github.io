@@ -9,7 +9,7 @@
   <meta name="author" content="Сергей Максимов">
 
   
-  <meta name="description" content="Введение Решение Первое приближение Обобщённый статический метод Implicits Введение Решал вчера задание NodeScala для курса реактивного &hellip;">
+  <meta name="description" content="Введение Настройка сервера Пререквизиты Создание нового пользователя Установка Ruby Получение исходников Discourse Подготовка Postgres к &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,93 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/">Поднимаем Discourse на Ubuntu Server 12.04</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-21T21:04:00+11:00" pubdate data-updated="true">Feb 21<span>st</span>, 2014</time>
+        
+        
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/discourse/'>Discourse</a>, <a class='category' href='/blog/categories/rails/'>Rails</a>, <a class='category' href='/blog/categories/ruby/'>Ruby</a>, <a class='category' href='/blog/categories/ubuntu/'>Ubuntu</a>
+  
+</span>
+
+
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul id="markdown-toc">
+  <li><a href="#section">Введение</a></li>
+  <li><a href="#section-1">Настройка сервера</a>    <ul>
+      <li><a href="#section-2">Пререквизиты</a></li>
+      <li><a href="#section-3">Создание нового пользователя</a></li>
+      <li><a href="#ruby">Установка Ruby</a></li>
+      <li><a href="#discourse">Получение исходников Discourse</a></li>
+      <li><a href="#postgres--">Подготовка Postgres к использованию</a></li>
+      <li><a href="#discourse-1">Конфигурация Discourse</a>        <ul>
+          <li><a href="#discourseconf">discourse.conf</a></li>
+        </ul>
+      </li>
+      <li><a href="#discourse-2">Инициализация Discourse</a></li>
+      <li><a href="#nginx">Настройка nginx</a></li>
+      <li><a href="#postfix">Настройка Postfix</a></li>
+      <li><a href="#bluepill">Установка и настройка Bluepill</a></li>
+    </ul>
+  </li>
+  <li><a href="#discourse-3">Обновление Discourse</a></li>
+  <li><a href="#section-4">Заключение</a></li>
+  <li><a href="#section-5">Ссылки</a></li>
+  <li><a href="#update">Update</a></li>
+</ul>
+
+<h1 id="section">Введение</h1>
+
+<p><a href="http://www.discourse.org">Discourse</a> — это молодой и активно
+развивающийся opensource-форум<sup id="fnref:disc-platform"><a href="#fn:disc-platform" rel="footnote">1</a></sup>, одним из создателей которого является
+широко известный в узких кругах программист и блоггер Jeff Atwood<sup id="fnref:atwood"><a href="#fn:atwood" rel="footnote">2</a></sup> a.k.a.
+<a href="http://blog.codinghorror.com">codinghorror</a>.</p>
+
+<p>Discourse отличается от традиционных форумов (прежде всего от phpBB,
+vBulletin и их клонов) динамичностью, своим подходом к организации
+обсуждений<sup id="fnref:organisation"><a href="#fn:organisation" rel="footnote">3</a></sup>, продвинутой системой уведомлений и
+отслеживания сообщений, responsive-версткой и поддержной мобильных
+браузеров. Ещё одно отличие от привычных форумов — ориентация на
+community-модерацию, которая позволяет наиболее уважаемым и активным
+участникам форума принимать участие в его управлении.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/">Читать дальше &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -664,6 +751,10 @@ Case’ов и других Test Suite’ов; их выполнение отл�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/">Поднимаем Discourse на Ubuntu Server 12.04</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2013/11/29/automatic-resource-management-in-scala/">Automatic Resource Management in Scala</a>
       </li>
     
@@ -679,10 +770,6 @@ Case’ов и других Test Suite’ов; их выполнение отл�
         <a href="/blog/2013/06/21/generating-pdf-in-rails-with-prawn/">Генерация PDF с помощью Prawn</a>
       </li>
     
-      <li class="post">
-        <a href="/blog/2013/06/19/unit-testing-in-racket-with-rackunit/">Юнит-тестирование в Racket: RackUnit</a>
-      </li>
-    
   </ul>
 </section>
 
@@ -696,7 +783,7 @@ Case’ов и других Test Suite’ов; их выполнение отл�
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2013 - Сергей Максимов -
+  Copyright &copy; 2014 - Сергей Максимов -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> -
   <span class="credit">Generated by <a href="http://jekyllrb.com/">Jeckyll</a></span> -
   <span class="credit">Hosted by <a href="https://github.com/">Github</a></span>

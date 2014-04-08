@@ -1,0 +1,701 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Поднимаем Discourse на Ubuntu Server 12.04 - Без названия</title>
+  <meta name="author" content="Сергей Максимов">
+
+  
+  <meta name="description" content="Введение Настройка сервера Пререквизиты Создание нового пользователя Установка Ruby Получение исходников Discourse Подготовка Postgres к &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://smaximov.github.io/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Без названия" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Без названия</a></h1>
+  
+    <h2>Блог о языках программирования, технологиях и прочих (не)интересных вещах</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:smaximov.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Поиск..."/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Блог</a></li>
+  <li><a href="/blog/archives">Архив</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Поднимаем Discourse на Ubuntu Server 12.04</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-21T21:04:00+11:00" pubdate data-updated="true">Feb 21<span>st</span>, 2014</time>
+        
+        
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/discourse/'>Discourse</a>, <a class='category' href='/blog/categories/rails/'>Rails</a>, <a class='category' href='/blog/categories/ruby/'>Ruby</a>, <a class='category' href='/blog/categories/ubuntu/'>Ubuntu</a>
+  
+</span>
+
+
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><ul id="markdown-toc">
+  <li><a href="#section">Введение</a></li>
+  <li><a href="#section-1">Настройка сервера</a>    <ul>
+      <li><a href="#section-2">Пререквизиты</a></li>
+      <li><a href="#section-3">Создание нового пользователя</a></li>
+      <li><a href="#ruby">Установка Ruby</a></li>
+      <li><a href="#discourse">Получение исходников Discourse</a></li>
+      <li><a href="#postgres--">Подготовка Postgres к использованию</a></li>
+      <li><a href="#discourse-1">Конфигурация Discourse</a>        <ul>
+          <li><a href="#discourseconf">discourse.conf</a></li>
+        </ul>
+      </li>
+      <li><a href="#discourse-2">Инициализация Discourse</a></li>
+      <li><a href="#nginx">Настройка nginx</a></li>
+      <li><a href="#postfix">Настройка Postfix</a></li>
+      <li><a href="#bluepill">Установка и настройка Bluepill</a></li>
+    </ul>
+  </li>
+  <li><a href="#discourse-3">Обновление Discourse</a></li>
+  <li><a href="#section-4">Заключение</a></li>
+  <li><a href="#section-5">Ссылки</a></li>
+  <li><a href="#update">Update</a></li>
+</ul>
+
+<h1 id="section">Введение</h1>
+
+<p><a href="http://www.discourse.org">Discourse</a> — это молодой и активно
+развивающийся opensource-форум<sup id="fnref:disc-platform"><a href="#fn:disc-platform" rel="footnote">1</a></sup>, одним из создателей которого является
+широко известный в узких кругах программист и блоггер Jeff Atwood<sup id="fnref:atwood"><a href="#fn:atwood" rel="footnote">2</a></sup> a.k.a.
+<a href="http://blog.codinghorror.com">codinghorror</a>.</p>
+
+<p>Discourse отличается от традиционных форумов (прежде всего от phpBB,
+vBulletin и их клонов) динамичностью, своим подходом к организации
+обсуждений<sup id="fnref:organisation"><a href="#fn:organisation" rel="footnote">3</a></sup>, продвинутой системой уведомлений и
+отслеживания сообщений, responsive-версткой и поддержной мобильных
+браузеров. Ещё одно отличие от привычных форумов — ориентация на
+community-модерацию, которая позволяет наиболее уважаемым и активным
+участникам форума принимать участие в его управлении.</p>
+
+<!-- more -->
+
+<h1 id="section-1">Настройка сервера</h1>
+
+<p>Использовался сервер со следующими характеристиками:</p>
+
+<ul>
+  <li>Ubuntu 12.04 LTS</li>
+  <li>4 Xeon vCPU</li>
+  <li>4GB ECC RAM</li>
+  <li>60GB SSD</li>
+</ul>
+
+<h2 id="section-2">Пререквизиты</h2>
+
+<p>Нам потребуется следующее ПО:</p>
+
+<ul>
+  <li>Postgres 9.1+ в качестве СУБД.</li>
+  <li>Redis 2+ для кэша, job queue и пр.</li>
+  <li>nginx в качестве вэб-сервера.</li>
+  <li>Postfix в качестве почтового сервера.</li>
+</ul>
+
+<p>Дополнительное ПО:</p>
+
+<ul>
+  <li>git — для клонирования репозитория и управления кодом.</li>
+  <li>make, g++ — для сборки gem native extensions.</li>
+  <li>libxml2, libxslt, postgresql-server-dev-9.1 — зависимости при сборке.</li>
+  <li>emacs — для редактирования конфигов.</li>
+</ul>
+
+<p>Установка проводится средствами пакетного менеджера.</p>
+
+<h2 id="section-3">Создание нового пользователя</h2>
+
+<p>Плохим тоном считается использование веб-сервисов из-под
+рута, поэтому создадим нового пользователя и добавим его
+в группу <strong>sudo</strong><sup id="fnref:sudo"><a href="#fn:sudo" rel="footnote">4</a></sup>:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">adduser --shell /bin/bash --gecos <span class="s1">&#39;&#39;</span> nameless
+</span><span class="line">usermod -a -g sudo nameless
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Сменим текущего пользователя (<strong>root</strong>) на <strong>nameless</strong>:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">su - nameless
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p><strong>Внимание</strong>: <em>все дальнейшие операции выполняются из-под пользователя <strong>nameless</strong>!</em></p>
+
+<p>Также создадим директорию, в которой будет находится Discourse, и
+дадим на неё права новому пользователю:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">sudo install -d -m 755 -o nameless -g nameless /var/www/discourse
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="ruby">Установка Ruby</h2>
+
+<p>Бэкенд <strong>Discourse</strong> написан на <a href="https://www.ruby-lang.org/">Ruby</a> с
+использованием вэб-фреймворка
+<a href="http://rubyonrails.org/">Ruby on Rails</a>. Для установки Ruby я буду
+использовать <a href="http://rvm.io/">RVM</a> — Ruby Version Manager.</p>
+
+<p>Установка RVM в случае использовании Bash как shell’а по умолчанию
+предельна проста:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">curl -sSL https://get.rvm.io | bash -s stable
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Далее, чтобы изменения вступили в силу, надо выполнить</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">. ~/.rvm/scripts/rvm
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>или перезапустить текущую сессию.</p>
+
+<p>С помощью RVM установим последнюю на текущий момент версию Ruby:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="c"># установить Ruby 2.1.0</span>
+</span><span class="line">rvm install 2.1.0
+</span><span class="line"><span class="c"># использовать версию 2.1.0 по умолчанию</span>
+</span><span class="line">rvm use 2.1.0 --default
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Также необходимо установить Bundler для управления зависимостями
+gem’ов Discourse:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">gem install bundler
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="discourse">Получение исходников Discourse</h2>
+
+<p>Склонируем репозиторий Discourse в заранее созданную директорию:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">git clone git://github.com/discourse/discourse.git /var/www/discourse
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Перейдём в эту директорию и установим необходимые зависимости:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nb">cd</span> /var/www/discourse/
+</span><span class="line">bundle install
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="postgres--">Подготовка Postgres к использованию</h2>
+
+<p>Добавим роль для текущего пользователя:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">sudo -u postgres createuser -s nameless
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Создадим базу данных:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">createdb discourse_prod
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="discourse-1">Конфигурация Discourse</h2>
+
+<p>Перейдём в директорию <code>config</code> и скопируем шаблонные конфиги:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">cp discourse_quickstart.conf discourse.conf
+</span><span class="line">cp discourse.pill.sample discourse.pill
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h3 id="discourseconf">discourse.conf</h3>
+
+<p>Укажем имя хоста для форума:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="c"># hostname running the forum; i.e the external address of your form.</span>
+</span><span class="line"><span class="nv">hostname</span> <span class="o">=</span> <span class="s2">&quot;grant.smaximov.info&quot;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Изменим настройки соединения с Postgres:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="c"># database name running discourse, in INSTALL-ubuntu this is discourse_prod</span>
+</span><span class="line"><span class="nv">db_name</span> <span class="o">=</span> discourse_prod
+</span><span class="line">
+</span><span class="line"><span class="c"># host address for db server, uncomment if needed</span>
+</span><span class="line"><span class="nv">db_host</span> <span class="o">=</span> localhost
+</span><span class="line">
+</span><span class="line"><span class="c"># port running db server, uncomment if needed</span>
+</span><span class="line"><span class="c"># db_port = 5432</span>
+</span><span class="line">
+</span><span class="line"><span class="c"># username accessing database, if connecting remotely</span>
+</span><span class="line"><span class="nv">db_username</span> <span class="o">=</span> nameless
+</span><span class="line">
+</span><span class="line"><span class="c"># password used to access the db, if connecting remotely</span>
+</span><span class="line"><span class="nv">db_password</span> <span class="o">=</span> secret
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Настройки Redis можно оставить без изменения.</p>
+
+<h2 id="discourse-2">Инициализация Discourse</h2>
+
+<p>Выполним первоначальную миграцию базы данных и компиляцию
+статических файлов:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nv">RAILS_ENV</span><span class="o">=</span>production bundle <span class="nb">exec </span>rake db:migrate
+</span><span class="line"><span class="nv">RAILS_ENV</span><span class="o">=</span>production bundle <span class="nb">exec </span>rake assets:precompile
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="nginx">Настройка nginx</h2>
+
+<p>Скопируем конфигурационные файлы из под обычного пользователя:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">sudo cp /var/www/discourse/config/nginx.global.conf /etc/nginx/conf.d/local-server.conf
+</span><span class="line">sudo cp /var/www/discourse/config/nginx.sample.conf /etc/nginx/conf.d/discourse.conf
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Укажем имя сервера в <code>/etc/nginx.conf.d/discourse.conf</code>:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">server_name grant.smaximov.info;
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Осталось перезапустить nginx:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">sudo service nginx reload
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="postfix">Настройка Postfix</h2>
+
+<p>В файле <code>/etc/hostname</code> укажем доменное имя сервера.</p>
+
+<p>Для пересылки писем будем использовать <a href="mandrillapp.com">Mandrill</a>.
+Создадим там учётную запись и сгенерируем для неё API KEY, добавив
+ограничения: доступ только с IP сервера и типы сообщений <strong>send</strong>,
+<strong>send-raw</strong>.</p>
+
+<p>Создадим файл <code>/etc/postfix/sasl/passwd</code> со следующим содержимым</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="o">[</span>smtp.mandrillapp.com<span class="o">]</span> MANDRILL_ACCOUNT:API_KEY
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>где <code>MANDRILL_ACCOUNT</code> — учётная запись Mandrill, а <code>API_KEY</code> —
+сгенерированный для неё API KEY.</p>
+
+<p>Ограничим права на этот файл:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">sudo chmod 600 /etc/postfix/sasl/passwd
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Обновим настройки Postfix (эту команду следует выполнять при каждом
+изменении файла):</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">sudo postmap /etc/postfix/sasl/passwd
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Отредактируем <code>/etc/postfix/main.cf</code>, настроив
+<strong>sasl</strong>-аутентификацию:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nv">smtp_sasl_auth_enable</span> <span class="o">=</span> yes
+</span><span class="line"><span class="nv">smtp_sasl_password_maps</span> <span class="o">=</span> <span class="nb">hash</span>:/etc/postfix/sasl/passwd
+</span><span class="line"><span class="nv">smtp_sasl_security_options</span> <span class="o">=</span> noanonymous
+</span><span class="line"><span class="nv">smtp_use_tls</span> <span class="o">=</span> yes
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Там же укажем релей:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nv">relayhost</span> <span class="o">=</span> <span class="o">[</span>smtp.mandrillapp.com<span class="o">]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Перезапустим Postfix:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">sudo service postfix restart
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Теперь проверим работоспособность конфигурации:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">sendmail your.real.email@gmail.com
+</span><span class="line">From: admin@smaximov.info
+</span><span class="line">Subject: Test message from Postfix
+</span><span class="line">Make sure that everything is OK.
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Если письмо не пришло, нужно смотреть <code>/var/log/syslog</code> на предмет
+возможных проблем.</p>
+
+<p>После этого можно проверить, отсылает ли Discourse почту. Для этого
+нужно в админке Discourse перейти в <strong>Email</strong> → <strong>Settings</strong> и
+отослать тестовое письмо на свой адрес.</p>
+
+<h2 id="bluepill">Установка и настройка Bluepill</h2>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">gem install bluepill
+</span><span class="line"><span class="nb">echo</span> <span class="s1">&#39;alias bluepill=&quot;NOEXEC_DISABLE=1 bluepill --no-privileged -c ~/.bluepill&quot;&#39;</span> &gt;&gt; ~/.bash_aliases
+</span><span class="line">rvm wrapper <span class="k">$(</span>rvm current<span class="k">)</span> bootup bluepill
+</span><span class="line">rvm wrapper <span class="k">$(</span>rvm current<span class="k">)</span> bootup bundle
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Запускаем Discourse:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nv">RUBY_GC_MALLOC_LIMIT</span><span class="o">=</span>90000000 <span class="nv">RAILS_ROOT</span><span class="o">=</span>/var/www/discourse <span class="se">\</span>
+</span><span class="line">    <span class="nv">RAILS_ENV</span><span class="o">=</span>production <span class="nv">NUM_WEBS</span><span class="o">=</span>4 bluepill --no-privileged <span class="se">\</span>
+</span><span class="line">    -c ~/.bluepill load /var/www/discourse/config/discourse.pill
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Добавляем эту же строку в crontab при <code>@reload</code>.</p>
+
+<h1 id="discourse-3">Обновление Discourse</h1>
+
+<p>Для обновления Discourse можно использовать следующий скрипт:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="c">#!/bin/bash</span>
+</span><span class="line"><span class="c"># -*- mode: sh -*-</span>
+</span><span class="line">
+</span><span class="line"><span class="nv">DATESTAMP</span><span class="o">=</span><span class="k">$(</span><span class="nv">TZ</span><span class="o">=</span>UTC date +%F-%T<span class="k">)</span>
+</span><span class="line"><span class="nv">BACKUP_DIR</span><span class="o">=</span><span class="s2">&quot;${HOME%%/}/backup&quot;</span>
+</span><span class="line"><span class="nv">DISCOURSE_DIR</span><span class="o">=</span><span class="s2">&quot;/var/www/discourse&quot;</span>
+</span><span class="line"><span class="nv">DISCOURSE_PARENT</span><span class="o">=</span><span class="s2">&quot;$(dirname ${DISCOURSE_DIR})&quot;</span>
+</span><span class="line"><span class="nv">DISCOURSE_NAME</span><span class="o">=</span><span class="s2">&quot;$(basename ${DISCOURSE_DIR})&quot;</span>
+</span><span class="line">
+</span><span class="line">bluepill --no-privileged stop
+</span><span class="line">bluepill --no-privileged quit
+</span><span class="line">
+</span><span class="line">mkdir -vp <span class="nv">$BACKUP_DIR</span>
+</span><span class="line">pg_dump --no-owner --clean discourse_prod | gzip -c &gt; <span class="s2">&quot;${BACKUP_DIR}/discourse-db-${DATESTAMP}.sql.gz&quot;</span>
+</span><span class="line">tar cfz <span class="s2">&quot;${BACKUP_DIR}/discourse-dir-${DATESTAMP}.tar.gz&quot;</span> -C <span class="nv">$DISCOURSE_PARENT</span> <span class="nv">$DISCOURSE_NAME</span>
+</span><span class="line">
+</span><span class="line"><span class="nb">cd</span> <span class="nv">$DISCOURSE_DIR</span>
+</span><span class="line">git checkout master
+</span><span class="line">git pull origin master
+</span><span class="line">git fetch --tags
+</span><span class="line">
+</span><span class="line">bundle install --without <span class="nb">test</span> --deployment
+</span><span class="line"><span class="nv">RUBY_GC_MALLOC_LIMIT</span><span class="o">=</span>90000000 <span class="nv">RAILS_ENV</span><span class="o">=</span>production bundle <span class="nb">exec </span>rake db:migrate
+</span><span class="line"><span class="nv">RUBY_GC_MALLOC_LIMIT</span><span class="o">=</span>90000000 <span class="nv">RAILS_ENV</span><span class="o">=</span>production bundle <span class="nb">exec </span>rake assets:precompile
+</span><span class="line">
+</span><span class="line"><span class="nb">eval</span> <span class="s2">&quot;$(crontab -l | sed -e &#39;/^#/d&#39; -e &#39;s/^@reboot //&#39;)&quot;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h1 id="section-4">Заключение</h1>
+
+<p>Вот мы и получили работающий экземпляр Discourse. Что можно сделать
+дальше?</p>
+
+<ul>
+  <li>
+    <p>Настроить сайт под себя. Выбор опций для настройки достаточно велик:
+от локали по умолчанию до параметров аутентификации и авторизации.</p>
+  </li>
+  <li>
+    <p>Изменить внешний вид сайта: написать кастомные стили…</p>
+  </li>
+  <li>
+    <p>Заняться начальным наполнением сайта.</p>
+  </li>
+  <li>
+    <p>…</p>
+  </li>
+</ul>
+
+<h1 id="section-5">Ссылки</h1>
+
+<ul>
+  <li>
+    <p><a href="http://www.discourse.org/">Discourse Homepage</a></p>
+  </li>
+  <li>
+    <p><a href="http://github.com/discourse/discourse">Discourse GitHub Repo</a></p>
+  </li>
+  <li>
+    <p><a href="https://github.com/discourse/discourse/blob/master/docs/INSTALL-ubuntu.md">Official Discource Install Guide</a></p>
+  </li>
+</ul>
+
+<h1 id="update">Update</h1>
+
+<p>Тем временем не так давно появилось
+<a href="https://github.com/discourse/discourse/blob/master/docs/INSTALL-digital-ocean.md">руководство</a>
+по поднятию Discourse с помощью образа <a href="https://www.docker.io/">Docker</a>.</p>
+
+<div class="footnotes">
+  <ol>
+    <li id="fn:disc-platform">
+      <p>…или Discussion Platform, как называют его авторы<a href="#fnref:disc-platform" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:atwood">
+      <p><a href="https://stackoverflow.com">StackOverflow</a> и <a href="https://stackexchange.com">StackExchange</a> — тоже его рук дело<a href="#fnref:atwood" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:organisation">
+      <p>группировка по тегам вместо подфорумов, отсутствие разделения топиков на страницы<a href="#fnref:organisation" rel="reference">&#8617;</a></p>
+    </li>
+    <li id="fn:sudo">
+      <p>Это даст возможность использовать утилиту sudo без необходимости править файл <code>/etc/sudoers</code><a href="#fnref:sudo" rel="reference">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Сергей Максимов</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-21T21:04:00+11:00" pubdate data-updated="true">Feb 21<span>st</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/discourse/'>Discourse</a>, <a class='category' href='/blog/categories/rails/'>Rails</a>, <a class='category' href='/blog/categories/ruby/'>Ruby</a>, <a class='category' href='/blog/categories/ubuntu/'>Ubuntu</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://smaximov.github.io/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/" data-via="" data-counturl="http://smaximov.github.io/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/11/29/automatic-resource-management-in-scala/" title="Предыдущий пост: Automatic Resource Management in Scala">&laquo; Automatic Resource Management in Scala</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Недавнее</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/">Поднимаем Discourse на Ubuntu Server 12.04</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/29/automatic-resource-management-in-scala/">Automatic Resource Management in Scala</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/26/switching-markdown-processor-to-kramdown/">Kramdown в качестве процессора Markdown</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/25/add-categories-to-post-title/">Добавление категорий к заголовку поста</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/21/generating-pdf-in-rails-with-prawn/">Генерация PDF с помощью Prawn</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Сергей Максимов -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> -
+  <span class="credit">Generated by <a href="http://jekyllrb.com/">Jeckyll</a></span> -
+  <span class="credit">Hosted by <a href="https://github.com/">Github</a></span>
+</p>
+
+</footer>
+  
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
