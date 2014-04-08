@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Racket | Без названия]]></title>
-  <link href="http://smaximov.github.io/blog/categories/racket/atom.xml" rel="self"/>
-  <link href="http://smaximov.github.io/"/>
-  <updated>2014-04-08T17:08:00+11:00</updated>
-  <id>http://smaximov.github.io/</id>
+  <link href="http://blog.smaximov.info/blog/categories/racket/atom.xml" rel="self"/>
+  <link href="http://blog.smaximov.info/"/>
+  <updated>2014-04-08T17:26:29+11:00</updated>
+  <id>http://blog.smaximov.info/</id>
   <author>
     <name><![CDATA[Сергей Максимов]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Юнит-тестирование в Racket: RackUnit]]></title>
-    <link href="http://smaximov.github.io/blog/2013/06/19/unit-testing-in-racket-with-rackunit/"/>
+    <link href="http://blog.smaximov.info/blog/2013/06/19/unit-testing-in-racket-with-rackunit/"/>
     <updated>2013-06-19T22:30:00+11:00</updated>
-    <id>http://smaximov.github.io/blog/2013/06/19/unit-testing-in-racket-with-rackunit</id>
+    <id>http://blog.smaximov.info/blog/2013/06/19/unit-testing-in-racket-with-rackunit</id>
     <content type="html"><![CDATA[<ul id="markdown-toc">
   <li><a href="#section">Введение</a></li>
   <li><a href="#racket">Юнит-тестирование в Racket</a>    <ul>

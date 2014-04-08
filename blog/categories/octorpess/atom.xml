@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Octorpess | Без названия]]></title>
-  <link href="http://smaximov.github.io/blog/categories/octorpess/atom.xml" rel="self"/>
-  <link href="http://smaximov.github.io/"/>
-  <updated>2014-04-08T17:08:00+11:00</updated>
-  <id>http://smaximov.github.io/</id>
+  <link href="http://blog.smaximov.info/blog/categories/octorpess/atom.xml" rel="self"/>
+  <link href="http://blog.smaximov.info/"/>
+  <updated>2014-04-08T17:26:29+11:00</updated>
+  <id>http://blog.smaximov.info/</id>
   <author>
     <name><![CDATA[Сергей Максимов]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Kramdown в качестве процессора Markdown]]></title>
-    <link href="http://smaximov.github.io/blog/2013/06/26/switching-markdown-processor-to-kramdown/"/>
+    <link href="http://blog.smaximov.info/blog/2013/06/26/switching-markdown-processor-to-kramdown/"/>
     <updated>2013-06-26T18:57:00+11:00</updated>
-    <id>http://smaximov.github.io/blog/2013/06/26/switching-markdown-processor-to-kramdown</id>
+    <id>http://blog.smaximov.info/blog/2013/06/26/switching-markdown-processor-to-kramdown</id>
     <content type="html"><![CDATA[<p>Перевёл обработку Markdown на <a href="http://kramdown.rubyforge.org/index.html">Kramdown</a>. Что это (пока)
 дало: сноски и генерацию содержания. Стили для них взял (с небольшими
 изменениями)

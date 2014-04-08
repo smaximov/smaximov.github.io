@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Без названия]]></title>
-  <link href="http://smaximov.github.io/atom.xml" rel="self"/>
-  <link href="http://smaximov.github.io/"/>
-  <updated>2014-04-08T17:08:00+11:00</updated>
-  <id>http://smaximov.github.io/</id>
+  <link href="http://blog.smaximov.info/atom.xml" rel="self"/>
+  <link href="http://blog.smaximov.info/"/>
+  <updated>2014-04-08T17:26:29+11:00</updated>
+  <id>http://blog.smaximov.info/</id>
   <author>
     <name><![CDATA[Сергей Максимов]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Поднимаем Discourse на Ubuntu Server 12.04]]></title>
-    <link href="http://smaximov.github.io/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/"/>
+    <link href="http://blog.smaximov.info/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/"/>
     <updated>2014-02-21T21:04:00+11:00</updated>
-    <id>http://smaximov.github.io/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04</id>
+    <id>http://blog.smaximov.info/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04</id>
     <content type="html"><![CDATA[<ul id="markdown-toc">
   <li><a href="#section">Введение</a></li>
   <li><a href="#section-1">Настройка сервера</a>    <ul>
@@ -496,9 +496,9 @@ gem’ов Discourse:</p>
   
   <entry>
     <title type="html"><![CDATA[Automatic Resource Management in Scala]]></title>
-    <link href="http://smaximov.github.io/blog/2013/11/29/automatic-resource-management-in-scala/"/>
+    <link href="http://blog.smaximov.info/blog/2013/11/29/automatic-resource-management-in-scala/"/>
     <updated>2013-11-29T14:09:00+11:00</updated>
-    <id>http://smaximov.github.io/blog/2013/11/29/automatic-resource-management-in-scala</id>
+    <id>http://blog.smaximov.info/blog/2013/11/29/automatic-resource-management-in-scala</id>
     <content type="html"><![CDATA[<ul id="markdown-toc">
   <li><a href="#section">Введение</a></li>
   <li><a href="#section-1">Решение</a>    <ul>
@@ -698,9 +698,9 @@ Scala для реализации автоматического управле�
   
   <entry>
     <title type="html"><![CDATA[Kramdown в качестве процессора Markdown]]></title>
-    <link href="http://smaximov.github.io/blog/2013/06/26/switching-markdown-processor-to-kramdown/"/>
+    <link href="http://blog.smaximov.info/blog/2013/06/26/switching-markdown-processor-to-kramdown/"/>
     <updated>2013-06-26T18:57:00+11:00</updated>
-    <id>http://smaximov.github.io/blog/2013/06/26/switching-markdown-processor-to-kramdown</id>
+    <id>http://blog.smaximov.info/blog/2013/06/26/switching-markdown-processor-to-kramdown</id>
     <content type="html"><![CDATA[<p>Перевёл обработку Markdown на <a href="http://kramdown.rubyforge.org/index.html">Kramdown</a>. Что это (пока)
 дало: сноски и генерацию содержания. Стили для них взял (с небольшими
 изменениями)
@@ -815,9 +815,9 @@ Scala для реализации автоматического управле�
   
   <entry>
     <title type="html"><![CDATA[Добавление категорий к заголовку поста]]></title>
-    <link href="http://smaximov.github.io/blog/2013/06/25/add-categories-to-post-title/"/>
+    <link href="http://blog.smaximov.info/blog/2013/06/25/add-categories-to-post-title/"/>
     <updated>2013-06-25T22:14:00+11:00</updated>
-    <id>http://smaximov.github.io/blog/2013/06/25/add-categories-to-post-title</id>
+    <id>http://blog.smaximov.info/blog/2013/06/25/add-categories-to-post-title</id>
     <content type="html"><![CDATA[<p>Решил вот немного изменить внешний вид блога и заодно разобраться в
 расположении и назначении стилевых файлов и шаблонов HTML в
 Octorpess/Jekyll.</p>
@@ -898,9 +898,9 @@ Octorpess/Jekyll.</p>
   
   <entry>
     <title type="html"><![CDATA[Генерация PDF с помощью Prawn]]></title>
-    <link href="http://smaximov.github.io/blog/2013/06/21/generating-pdf-in-rails-with-prawn/"/>
+    <link href="http://blog.smaximov.info/blog/2013/06/21/generating-pdf-in-rails-with-prawn/"/>
     <updated>2013-06-21T18:17:00+11:00</updated>
-    <id>http://smaximov.github.io/blog/2013/06/21/generating-pdf-in-rails-with-prawn</id>
+    <id>http://blog.smaximov.info/blog/2013/06/21/generating-pdf-in-rails-with-prawn</id>
     <content type="html"><![CDATA[<ul id="markdown-toc">
   <li><a href="#section">Введение</a></li>
   <li><a href="#section-1">Установка и настройка</a></li>
@@ -1166,9 +1166,9 @@ PDF-файлы:</p>
   
   <entry>
     <title type="html"><![CDATA[Юнит-тестирование в Racket: RackUnit]]></title>
-    <link href="http://smaximov.github.io/blog/2013/06/19/unit-testing-in-racket-with-rackunit/"/>
+    <link href="http://blog.smaximov.info/blog/2013/06/19/unit-testing-in-racket-with-rackunit/"/>
     <updated>2013-06-19T22:30:00+11:00</updated>
-    <id>http://smaximov.github.io/blog/2013/06/19/unit-testing-in-racket-with-rackunit</id>
+    <id>http://blog.smaximov.info/blog/2013/06/19/unit-testing-in-racket-with-rackunit</id>
     <content type="html"><![CDATA[<ul id="markdown-toc">
   <li><a href="#section">Введение</a></li>
   <li><a href="#racket">Юнит-тестирование в Racket</a>    <ul>
@@ -1496,9 +1496,9 @@ Test Suites.</p>
   
   <entry>
     <title type="html"><![CDATA[Начало]]></title>
-    <link href="http://smaximov.github.io/blog/2013/06/19/at-the-very-beginning/"/>
+    <link href="http://blog.smaximov.info/blog/2013/06/19/at-the-very-beginning/"/>
     <updated>2013-06-19T21:27:00+11:00</updated>
-    <id>http://smaximov.github.io/blog/2013/06/19/at-the-very-beginning</id>
+    <id>http://blog.smaximov.info/blog/2013/06/19/at-the-very-beginning</id>
     <content type="html"><![CDATA[<p>Первая запись в блоге.</p>
 
 <div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>

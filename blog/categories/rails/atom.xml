@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Rails | Без названия]]></title>
-  <link href="http://smaximov.github.io/blog/categories/rails/atom.xml" rel="self"/>
-  <link href="http://smaximov.github.io/"/>
-  <updated>2014-04-08T17:08:00+11:00</updated>
-  <id>http://smaximov.github.io/</id>
+  <link href="http://blog.smaximov.info/blog/categories/rails/atom.xml" rel="self"/>
+  <link href="http://blog.smaximov.info/"/>
+  <updated>2014-04-08T17:26:29+11:00</updated>
+  <id>http://blog.smaximov.info/</id>
   <author>
     <name><![CDATA[Сергей Максимов]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Поднимаем Discourse на Ubuntu Server 12.04]]></title>
-    <link href="http://smaximov.github.io/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/"/>
+    <link href="http://blog.smaximov.info/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/"/>
     <updated>2014-02-21T21:04:00+11:00</updated>
-    <id>http://smaximov.github.io/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04</id>
+    <id>http://blog.smaximov.info/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04</id>
     <content type="html"><![CDATA[<ul id="markdown-toc">
   <li><a href="#section">Введение</a></li>
   <li><a href="#section-1">Настройка сервера</a>    <ul>
@@ -445,9 +445,9 @@ RUBY_GC_MALLOC_LIMIT=90000000 RAILS_ENV=production bundle exec rake assets:preco
   
   <entry>
     <title type="html"><![CDATA[Генерация PDF с помощью Prawn]]></title>
-    <link href="http://smaximov.github.io/blog/2013/06/21/generating-pdf-in-rails-with-prawn/"/>
+    <link href="http://blog.smaximov.info/blog/2013/06/21/generating-pdf-in-rails-with-prawn/"/>
     <updated>2013-06-21T18:17:00+11:00</updated>
-    <id>http://smaximov.github.io/blog/2013/06/21/generating-pdf-in-rails-with-prawn</id>
+    <id>http://blog.smaximov.info/blog/2013/06/21/generating-pdf-in-rails-with-prawn</id>
     <content type="html"><![CDATA[<ul id="markdown-toc">
   <li><a href="#section">Введение</a></li>
   <li><a href="#section-1">Установка и настройка</a></li>

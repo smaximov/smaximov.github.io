@@ -2,10 +2,10 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 
   <title><![CDATA[Category: Misc | Без названия]]></title>
-  <link href="http://smaximov.github.io/blog/categories/misc/atom.xml" rel="self"/>
-  <link href="http://smaximov.github.io/"/>
-  <updated>2014-04-08T17:08:00+11:00</updated>
-  <id>http://smaximov.github.io/</id>
+  <link href="http://blog.smaximov.info/blog/categories/misc/atom.xml" rel="self"/>
+  <link href="http://blog.smaximov.info/"/>
+  <updated>2014-04-08T17:26:29+11:00</updated>
+  <id>http://blog.smaximov.info/</id>
   <author>
     <name><![CDATA[Сергей Максимов]]></name>
     
@@ -15,9 +15,9 @@
   
   <entry>
     <title type="html"><![CDATA[Начало]]></title>
-    <link href="http://smaximov.github.io/blog/2013/06/19/at-the-very-beginning/"/>
+    <link href="http://blog.smaximov.info/blog/2013/06/19/at-the-very-beginning/"/>
     <updated>2013-06-19T21:27:00+11:00</updated>
-    <id>http://smaximov.github.io/blog/2013/06/19/at-the-very-beginning</id>
+    <id>http://blog.smaximov.info/blog/2013/06/19/at-the-very-beginning</id>
     <content type="html"><![CDATA[<p>Первая запись в блоге.</p>
 
 <p><code>cl
