@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Javascript | Без названия]]></title>
   <link href="http://blog.smaximov.info/blog/categories/javascript/atom.xml" rel="self"/>
   <link href="http://blog.smaximov.info/"/>
-  <updated>2014-04-09T00:40:18+11:00</updated>
+  <updated>2014-04-09T00:47:21+11:00</updated>
   <id>http://blog.smaximov.info/</id>
   <author>
     <name><![CDATA[Сергей Максимов]]></name>
@@ -138,8 +138,8 @@
 
 <h1 id="section-3">Демонстрация</h1>
 
-<p>Нажмите <a href="http://demos.smaximov.info/peg" target="_blank">сюда</a>, если iframe ниже не
-отображается.</p>
+<p><small>Нажмите <a href="http://demos.smaximov.info/peg" target="_blank">сюда</a>, если iframe ниже не
+отображается.</small></p>
 
 <iframe src="http://demos.smaximov.info/peg" height="570" width="100%" style="border-radius: 5px; border: 1px #E0E0E0 groove">
     Your browser doesn't support iframes, sorry :(
