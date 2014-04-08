@@ -1,0 +1,373 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Expressions parsing with PEG.js - Без названия</title>
+  <meta name="author" content="Сергей Максимов">
+
+  
+  <meta name="description" content="Синтаксический анализ Формальная грамматика Parsing Expression Grammars Разбор языка логических выражений Демонстрация Давным давно, в далёк я &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.smaximov.info/blog/2014/04/08/parsing-expressions-with-peg-dot-js">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Без названия" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Без названия</a></h1>
+  
+    <h2>Блог о языках программирования, технологиях и прочих (не)интересных вещах</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.smaximov.info" />
+    <input class="search" type="text" name="q" results="0" placeholder="Поиск..."/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Блог</a></li>
+  <li><a href="/blog/archives">Архив</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Expressions Parsing With PEG.js</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-08T17:46:00+11:00" pubdate data-updated="true">Apr 8<span>th</span>, 2014</time>
+        
+        
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/angularjs/'>AngularJS</a>, <a class='category' href='/blog/categories/javascript/'>Javascript</a>, <a class='category' href='/blog/categories/parsing/'>Parsing</a>, <a class='category' href='/blog/categories/peg/'>Peg</a>
+  
+</span>
+
+
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><ul id="markdown-toc">
+  <li><a href="#section">Синтаксический анализ</a>    <ul>
+      <li><a href="#section-1">Формальная грамматика</a></li>
+      <li><a href="#parsing-expression-grammars">Parsing Expression Grammars</a></li>
+    </ul>
+  </li>
+  <li><a href="#section-2">Разбор языка логических выражений</a></li>
+  <li><a href="#section-3">Демонстрация</a></li>
+</ul>
+
+<p>Давным давно<s>, в далёк</s> я
+<a href="http://www.cyberforum.ru/post5772306.html">написал</a> код вычисления
+логических выражений — просто так, задача интересной показалась.
+Для этой цели был написан парсер, который преобразует строку с
+логическим выражением в дерево, которое впоследствии вычисляется.
+Теперь же захотелось подробно описать (для себя и для потомков), что
+же при этом происходило.</p>
+
+<p>В этом посте будет кратко затронуты понятия синтаксического анализа,
+формальных грамматик, а также показан синтаксический разбор небольшого
+языка с помощью PEG-парсера.</p>
+
+<!-- more -->
+
+<h1 id="section">Синтаксический анализ</h1>
+
+<p>Синтаксический анализ, или <em>парсинг</em>, — это процесс анализа
+последовательности символов (<em>строка</em>) какого-нибудь абстрактного <em>алфавита</em>
+в соответствии правилами <em>формальной грамматики</em>. В процессе такого
+анализа выявляется принадлежность этой строки определённому
+<em>формальному языку</em>, который задаётся правилами грамматики над данным
+алфавитом.</p>
+
+<h2 id="section-1">Формальная грамматика</h2>
+
+<p>Другими словами, формальная грамматика представляет собой набор
+правил, описывающих множество всех возможных строк, которые получены
+из некоторого алфавита и принадлежат определённому языку.</p>
+
+<h2 id="parsing-expression-grammars">Parsing Expression Grammars</h2>
+
+<p>Parsing Expression Grammars (PEG) — это один из видов
+грамматики, введённый Брайаном Фордом в 2004 году.</p>
+
+<p>Синтаксис состоит из нескольких элементов:</p>
+
+<ul>
+  <li>
+    <p>Множества <em>терминальных</em> символов, которые «буквально» могут
+присутствовать в какой-либо строке языка (обычно обозначаются в виде
+строки в одинарных кавычках: <code>'terminal'</code>);</p>
+  </li>
+  <li>
+    <p>множества <em>нетерминальных</em> символов, которым соответствуют группы
+терминальных символов в соответствии с некоторыми правилами вывода;
+нетерминалы также называют <em>синтаксическими переменными</em> (<code>nonterminal</code>).</p>
+  </li>
+  <li>
+    <p>множество <em>правил вывода</em>, которые показывают, как образуются
+нетерминалы из терминалов и других нетерминалов;</p>
+  </li>
+  <li>
+    <p>начального <em>выражения</em>.</p>
+  </li>
+</ul>
+
+<p>Правила вывода имеют вид <code>nonterminal = some_expr</code>, где <code>some_expr</code>
+— это <em>выражение</em>. Выражения можно определить по индукции:</p>
+
+<ul>
+  <li>
+    <p><em>атомарное выражение</em> может состоять из любого терминала,
+нетерминала или пустой строки;</p>
+  </li>
+  <li>
+    <p>имея два выражения <em>e<sub>1</sub></em> и <em>e<sub>2</sub></em>, можно построить
+новое выражение:</p>
+
+    <ul>
+      <li>
+        <p><em>e<sub>1</sub></em> <em>e<sub>2</sub></em>: <em>последовательность</em> —
+сначала идёт разбор <em>e<sub>1</sub></em>, потом (в случае успешности
+разбора <em>e<sub>1</sub></em>) разбор <em>e<sub>2</sub></em>, в случае
+неудачи разбора любого подвыражение разбор всего выражения
+считается неудачным;</p>
+      </li>
+      <li>
+        <p><em>e<sub>1</sub><sup>*</sup></em>, <em>e<sub>1</sub><sup>+</sup></em>,
+<em>e<sub>1</sub>?</em>: <em>ноль или больше</em>, <em>один или больше</em>, <em>ноль или
+один</em> раз выполняют разбор выражения <em>e<sub>1</sub></em>;</p>
+      </li>
+      <li>
+        <p><em>e<sub>1</sub> / e<sub>2</sub></em>: <em>упорядоченный выбор</em> —
+если <em>e<sub>1</sub></em> успешно, то происходит возврат, в противном
+случае парсер откатывается назад и пытается выполнить разбор
+<em>e<sub>2</sub></em>;</p>
+      </li>
+      <li>
+        <p><em>&amp;e<sub>1</sub></em>: <em>и-предикат</em> —
+разбор выполняется успешно, если выражение
+<em>e<sub>1</sub></em> возвращает успех, но при этом парсер
+не поглощает ввод;</p>
+      </li>
+      <li>
+        <p><em>!e<sub>1</sub></em>: <em>не-предикат</em> — разбор выполняется
+успешно, если выражение <em>e<sub>1</sub></em> возвращает неуспех;
+парсер также не поглощает ввод.</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="section-2">Разбор языка логических выражений</h1>
+
+<p>Yet to be written</p>
+
+<h1 id="section-3">Демонстрация</h1>
+
+<p><a href="http://demos.smaximov.info/peg">Demo</a></p>
+
+<iframe src="http://demos.smaximov.info/peg" height="570" width="100%" style="border-radius: 5px; border: 1px #E0E0E0 groove">
+    Your browser doesn&#8217;t support iframes, sorry :(
+</iframe>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Сергей Максимов</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-08T17:46:00+11:00" pubdate data-updated="true">Apr 8<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/angularjs/'>AngularJS</a>, <a class='category' href='/blog/categories/javascript/'>Javascript</a>, <a class='category' href='/blog/categories/parsing/'>Parsing</a>, <a class='category' href='/blog/categories/peg/'>Peg</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://blog.smaximov.info/blog/2014/04/08/parsing-expressions-with-peg-dot-js/" data-via="" data-counturl="http://blog.smaximov.info/blog/2014/04/08/parsing-expressions-with-peg-dot-js/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/" title="Предыдущий пост: Поднимаем Discourse на Ubuntu Server 12.04">&laquo; Поднимаем Discourse на Ubuntu Server 12.04</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Недавнее</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/04/08/parsing-expressions-with-peg-dot-js/">Expressions Parsing With PEG.js</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/">Поднимаем Discourse на Ubuntu Server 12.04</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/29/automatic-resource-management-in-scala/">Automatic Resource Management in Scala</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/26/switching-markdown-processor-to-kramdown/">Kramdown в качестве процессора Markdown</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/25/add-categories-to-post-title/">Добавление категорий к заголовку поста</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Сергей Максимов -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> -
+  <span class="credit">Generated by <a href="http://jekyllrb.com/">Jeckyll</a></span> -
+  <span class="credit">Hosted by <a href="https://github.com/">Github</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'smaximov';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.smaximov.info/blog/2014/04/08/parsing-expressions-with-peg-dot-js/';
+        var disqus_url = 'http://blog.smaximov.info/blog/2014/04/08/parsing-expressions-with-peg-dot-js/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

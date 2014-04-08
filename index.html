@@ -9,7 +9,7 @@
   <meta name="author" content="Сергей Максимов">
 
   
-  <meta name="description" content="Введение Настройка сервера Пререквизиты Создание нового пользователя Установка Ruby Получение исходников Discourse Подготовка Postgres к &hellip;">
+  <meta name="description" content="Синтаксический анализ Формальная грамматика Parsing Expression Grammars Разбор языка логических выражений Демонстрация Давным давно, в далёк я &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,76 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/04/08/parsing-expressions-with-peg-dot-js/">Expressions Parsing With PEG.js</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-04-08T17:46:00+11:00" pubdate data-updated="true">Apr 8<span>th</span>, 2014</time>
+        
+        
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/angularjs/'>AngularJS</a>, <a class='category' href='/blog/categories/javascript/'>Javascript</a>, <a class='category' href='/blog/categories/parsing/'>Parsing</a>, <a class='category' href='/blog/categories/peg/'>Peg</a>
+  
+</span>
+
+
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul id="markdown-toc">
+  <li><a href="#section">Синтаксический анализ</a>    <ul>
+      <li><a href="#section-1">Формальная грамматика</a></li>
+      <li><a href="#parsing-expression-grammars">Parsing Expression Grammars</a></li>
+    </ul>
+  </li>
+  <li><a href="#section-2">Разбор языка логических выражений</a></li>
+  <li><a href="#section-3">Демонстрация</a></li>
+</ul>
+
+<p>Давным давно<s>, в далёк</s> я
+<a href="http://www.cyberforum.ru/post5772306.html">написал</a> код вычисления
+логических выражений — просто так, задача интересной показалась.
+Для этой цели был написан парсер, который преобразует строку с
+логическим выражением в дерево, которое впоследствии вычисляется.
+Теперь же захотелось подробно описать (для себя и для потомков), что
+же при этом происходило.</p>
+
+<p>В этом посте будет кратко затронуты понятия синтаксического анализа,
+формальных грамматик, а также показан синтаксический разбор небольшого
+языка с помощью PEG-парсера.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/04/08/parsing-expressions-with-peg-dot-js/">Читать дальше &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -751,6 +821,10 @@ Case’ов и других Test Suite’ов; их выполнение отл�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/04/08/parsing-expressions-with-peg-dot-js/">Expressions Parsing With PEG.js</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/">Поднимаем Discourse на Ubuntu Server 12.04</a>
       </li>
     
@@ -764,10 +838,6 @@ Case’ов и других Test Suite’ов; их выполнение отл�
     
       <li class="post">
         <a href="/blog/2013/06/25/add-categories-to-post-title/">Добавление категорий к заголовку поста</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/06/21/generating-pdf-in-rails-with-prawn/">Генерация PDF с помощью Prawn</a>
       </li>
     
   </ul>
