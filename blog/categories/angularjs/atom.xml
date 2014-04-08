@@ -4,7 +4,7 @@
   <title><![CDATA[Category: AngularJS | Без названия]]></title>
   <link href="http://blog.smaximov.info/blog/categories/angularjs/atom.xml" rel="self"/>
   <link href="http://blog.smaximov.info/"/>
-  <updated>2014-04-09T00:21:58+11:00</updated>
+  <updated>2014-04-09T00:35:49+11:00</updated>
   <id>http://blog.smaximov.info/</id>
   <author>
     <name><![CDATA[Сергей Максимов]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Expressions parsing with PEG.js]]></title>
+    <title type="html"><![CDATA[Разбор выражений с помощью PEG]]></title>
     <link href="http://blog.smaximov.info/blog/2014/04/08/parsing-expressions-with-peg-dot-js/"/>
     <updated>2014-04-08T17:46:00+11:00</updated>
     <id>http://blog.smaximov.info/blog/2014/04/08/parsing-expressions-with-peg-dot-js</id>
@@ -26,6 +26,7 @@
   </li>
   <li><a href="#section-2">Разбор языка логических выражений</a></li>
   <li><a href="#section-3">Демонстрация</a></li>
+  <li><a href="#section-4">Ссылки</a></li>
 </ul>
 
 <p>Давным давно<s>, в далёк</s> я
@@ -73,7 +74,8 @@
   <li>
     <p>множества <em>нетерминальных</em> символов, которым соответствуют группы
 терминальных символов в соответствии с некоторыми правилами вывода;
-нетерминалы также называют <em>синтаксическими переменными</em> (<code>nonterminal</code>).</p>
+нетерминалы также называют <em>синтаксическими переменными</em>
+(обозначаются в виде строки без кавычек: <code>nonterminal</code>).</p>
   </li>
   <li>
     <p>множество <em>правил вывода</em>, которые показывают, как образуются
@@ -136,11 +138,18 @@
 
 <h1 id="section-3">Демонстрация</h1>
 
-<p><a href="http://demos.smaximov.info/peg">Demo</a></p>
+<p>Нажмите <a href="http://demos.smaximov.info/peg" target="_blank">сюда</a>, если iframe ниже не
+отображается.</p>
 
 <iframe src="http://demos.smaximov.info/peg" height="570" width="100%" style="border-radius: 5px; border: 1px #E0E0E0 groove">
     Your browser doesn't support iframes, sorry :(
 </iframe>
+
+<h1 id="section-4">Ссылки</h1>
+
+<ul>
+  <li><a href="https://github.com/smaximov/expression-peg-example">Исходный код примера</a></li>
+</ul>
 ]]></content>
   </entry>
   
