@@ -102,8 +102,8 @@ Yet to be written
 
 # Демонстрация
 
-Нажмите [сюда](http://demos.smaximov.info/peg){: target="_blank" }, если iframe ниже не
-отображается.
+<small>Нажмите [сюда](http://demos.smaximov.info/peg){: target="_blank" }, если iframe ниже не
+отображается.</small>
 
 <iframe src="http://demos.smaximov.info/peg" height="570" width="100%"
         style="border-radius: 5px; border: 1px #E0E0E0 groove">
