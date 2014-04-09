@@ -9,7 +9,7 @@
   <meta name="author" content="Сергей Максимов">
 
   
-  <meta name="description" content="Синтаксический анализ Формальная грамматика Parsing Expression Grammars Разбор языка логических выражений Демонстрация Ссылки Давным давно, в далёк &hellip;">
+  <meta name="description" content="Синтаксический анализ Формальная грамматика Parsing Expression Grammars Генератор парсеров PEG.js Разбор языка логических выражений Грамматика языка &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -91,7 +91,7 @@
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/angularjs/'>AngularJS</a>, <a class='category' href='/blog/categories/javascript/'>Javascript</a>, <a class='category' href='/blog/categories/parsing/'>Parsing</a>, <a class='category' href='/blog/categories/peg/'>Peg</a>
+    <a class='category' href='/blog/categories/javascript/'>Javascript</a>, <a class='category' href='/blog/categories/parsing/'>Parsing</a>, <a class='category' href='/blog/categories/peg/'>Peg</a>
   
 </span>
 
@@ -107,9 +107,14 @@
       <li><a href="#parsing-expression-grammars">Parsing Expression Grammars</a></li>
     </ul>
   </li>
-  <li><a href="#section-2">Разбор языка логических выражений</a></li>
-  <li><a href="#section-3">Демонстрация</a></li>
-  <li><a href="#section-4">Ссылки</a></li>
+  <li><a href="#pegjs">Генератор парсеров PEG.js</a></li>
+  <li><a href="#section-2">Разбор языка логических выражений</a>    <ul>
+      <li><a href="#section-3">Грамматика языка</a></li>
+    </ul>
+  </li>
+  <li><a href="#section-4">Заключение</a></li>
+  <li><a href="#section-5">Демонстрация</a></li>
+  <li><a href="#section-6">Ссылки</a></li>
 </ul>
 
 <p>Давным давно<s>, в далёк</s> я
@@ -215,20 +220,417 @@
   </li>
 </ul>
 
+<h1 id="pegjs">Генератор парсеров PEG.js</h1>
+
+<p>Для данного примера мы рассмотрим парсер, который сгенерирован из
+грамматики на PEG-like языке с помощью генератора PEG.js. Синтаксис
+грамматик, принимаемых PEG.js, напоминает синстаксис PEG и вводит
+несколько расширений. Рассмотрим вкратце некоторые из них.</p>
+
+<ul>
+  <li>
+    <p>Каждое выражение грамматики помимо сопоставления с входным текстом
+возвращает какой-либо результат в виде значения Javascript. Для
+терминалов это сам совпавший текст, для повторений (<em>ноль или
+много</em>, <em>один или много</em>) это массив результатов каждого
+сопоставления выражения, для выражений-<em>предикатов</em> —
+<code>undefined</code> и т. д.</p>
+  </li>
+  <li>
+    <p><em>блок инициализации</em> — блок кода на Javascript, заключённый в
+фигурные скобки, опционально предшествующий описанию правил вывода и
+выполняемый перед непосредственным разбором; в основном используется
+для определений функций и классов, необходимых для построения
+синтаксического дерева.</p>
+  </li>
+  <li>
+    <p><em>символьный класс</em> (<code>[characters]</code>) — выражение, описывающее
+сопоставление символа входного текста какому-нибудь из символов в множестве,
+заданном в символьном классе. Множество может быть задано простым
+перечислением символов, диапазоном символов (<code>[a-z]</code>), инверсией
+символов в множестве с помощью предшествующего символа <code>^</code>
+(<code>[^a-z]</code>). Результатом выражения является совпавший символ.</p>
+  </li>
+  <li>
+    <p><em>семантические действия</em> — выражение, представляющее собой
+блок кода в фигурных скобках, который выполняется, если
+предшествующее выражение совпало, и полученный результат
+возвращается в качестве результата предшествующего выражения.</p>
+  </li>
+  <li>
+    <p><em>подвыражение</em> — одно или несколько выражений, сгруппированных
+с помощью круглых скобок.</p>
+  </li>
+  <li>
+    <p><em>метка</em> — Javascript-идентификатор, присвоенный выражению (в
+виде <code>label:expression</code>) и позволяющий ссылаться на результат
+этого выражения внутри семантического действия.</p>
+  </li>
+</ul>
+
+<p>Смысл и назначение этих расширений должны быть интуитивно понятны
+читателю; в противном случае стоит подробнее ознакомиться с
+<a href="http://pegjs.majda.cz/documentation#grammar-syntax-and-semantics">документацией</a>
+к генератору.</p>
+
 <h1 id="section-2">Разбор языка логических выражений</h1>
 
-<p>Yet to be written</p>
+<p>Наш язык состоит из следующих элементов:</p>
 
-<h1 id="section-3">Демонстрация</h1>
+<ul>
+  <li>
+    <p>булевы константы: <code>true</code> и <code>yes</code> — истина, <code>false</code> и <code>no</code> — ложь;</p>
+  </li>
+  <li>
+    <p>переменные (идентификаторы, состоящие из строчных букв латинского алфавита);</p>
+  </li>
+  <li>
+    <p>пробелы (игнорируются);</p>
+  </li>
+  <li>
+    <p>скобки для задания приоритета вычислений;</p>
+  </li>
+  <li>
+    <p>левоассоциативные операторы <code>&amp;</code> (конъюнкция) и <code>|</code> (дизъюнкция) с одинаковым приоритетом;</p>
+  </li>
+  <li>
+    <p>унарный оператор <code>!</code> (отрицание), обладающий наивысшим приоритетом.</p>
+  </li>
+</ul>
 
-<p><small>Нажмите <a href="http://demos.smaximov.info/peg" target="_blank">сюда</a>, если iframe ниже не
-отображается.</small></p>
+<h2 id="section-3">Грамматика языка</h2>
+
+<p>Сначала идёт блок инициализации, в котором объявляются узлы
+синтаксического дерева, которое строится в процессе разбора входной
+строки. Каждый узел обладает методом <code>evaluate</code>, принимающим словарь
+окружения (<code>env</code>), содержащий привязки переменных, и вычисляющим
+значение соответствующего узлу подвыражения.</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+<span class="line-number">17</span>
+<span class="line-number">18</span>
+<span class="line-number">19</span>
+<span class="line-number">20</span>
+<span class="line-number">21</span>
+<span class="line-number">22</span>
+<span class="line-number">23</span>
+<span class="line-number">24</span>
+<span class="line-number">25</span>
+<span class="line-number">26</span>
+<span class="line-number">27</span>
+<span class="line-number">28</span>
+<span class="line-number">29</span>
+<span class="line-number">30</span>
+<span class="line-number">31</span>
+<span class="line-number">32</span>
+<span class="line-number">33</span>
+<span class="line-number">34</span>
+<span class="line-number">35</span>
+<span class="line-number">36</span>
+<span class="line-number">37</span>
+<span class="line-number">38</span>
+<span class="line-number">39</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="p">{</span>
+</span><span class="line">  <span class="kd">function</span> <span class="nx">BooleanLiteral</span> <span class="p">(</span><span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">    <span class="k">this</span><span class="p">.</span><span class="nx">evaluate</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+</span><span class="line">      <span class="k">return</span> <span class="nx">value</span><span class="p">;</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">  <span class="p">}</span>
+</span><span class="line">
+</span><span class="line">  <span class="kd">function</span> <span class="nx">Variable</span> <span class="p">(</span><span class="nx">variable</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">    <span class="nx">variable</span> <span class="o">=</span> <span class="nx">variable</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">);</span>
+</span><span class="line">    <span class="k">this</span><span class="p">.</span><span class="nx">evaluate</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">env</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">      <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="p">(</span><span class="nx">variable</span> <span class="k">in</span> <span class="nx">env</span><span class="p">))</span> <span class="p">{</span>
+</span><span class="line">        <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;Undefined variable `&quot;</span> <span class="o">+</span> <span class="nx">variable</span> <span class="o">+</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">);</span>
+</span><span class="line">      <span class="p">}</span>
+</span><span class="line">
+</span><span class="line">      <span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="nx">env</span><span class="p">[</span><span class="nx">variable</span><span class="p">];</span>
+</span><span class="line">      <span class="k">if</span> <span class="p">((</span><span class="sr">/^(yes|true)$/</span><span class="p">).</span><span class="nx">test</span><span class="p">(</span><span class="nx">value</span><span class="p">))</span> <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
+</span><span class="line">      <span class="k">if</span> <span class="p">((</span><span class="sr">/^(no|false)$/</span><span class="p">).</span><span class="nx">test</span><span class="p">(</span><span class="nx">value</span><span class="p">))</span> <span class="k">return</span> <span class="kc">false</span><span class="p">;</span>
+</span><span class="line">
+</span><span class="line">      <span class="k">throw</span> <span class="k">new</span> <span class="nb">Error</span><span class="p">(</span><span class="s2">&quot;Variable `&quot;</span> <span class="o">+</span> <span class="nx">variable</span> <span class="o">+</span> <span class="s2">&quot;&#39; is not a boolean: &quot;</span> <span class="o">+</span> <span class="nx">value</span><span class="p">);</span>
+</span><span class="line">    <span class="p">}</span>
+</span><span class="line">  <span class="p">}</span>
+</span><span class="line">
+</span><span class="line">  <span class="kd">function</span> <span class="nx">Negate</span> <span class="p">(</span><span class="nx">arg</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">    <span class="k">this</span><span class="p">.</span><span class="nx">evaluate</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">env</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">      <span class="k">return</span> <span class="o">!</span><span class="nx">arg</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">(</span><span class="nx">env</span><span class="p">);</span>
+</span><span class="line">    <span class="p">};</span>
+</span><span class="line">  <span class="p">}</span>
+</span><span class="line">
+</span><span class="line">  <span class="kd">var</span> <span class="nx">dispatch</span> <span class="o">=</span> <span class="p">{</span>
+</span><span class="line">    <span class="s1">&#39;&amp;&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">a</span> <span class="o">&amp;&amp;</span> <span class="nx">b</span> <span class="p">},</span>
+</span><span class="line">    <span class="s1">&#39;|&#39;</span><span class="o">:</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">a</span><span class="p">,</span> <span class="nx">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">a</span> <span class="o">||</span> <span class="nx">b</span> <span class="p">}</span>
+</span><span class="line">  <span class="p">}</span>
+</span><span class="line">
+</span><span class="line">  <span class="kd">function</span> <span class="nx">BinOp</span> <span class="p">(</span><span class="nx">op1</span><span class="p">,</span> <span class="nx">o</span><span class="p">,</span> <span class="nx">op2</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">    <span class="k">this</span><span class="p">.</span><span class="nx">evaluate</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">env</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">      <span class="k">return</span> <span class="nx">dispatch</span><span class="p">[</span><span class="nx">o</span><span class="p">](</span><span class="nx">op1</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">(</span><span class="nx">env</span><span class="p">),</span> <span class="nx">op2</span><span class="p">.</span><span class="nx">evaluate</span><span class="p">(</span><span class="nx">env</span><span class="p">));</span>
+</span><span class="line">    <span class="p">}</span>
+</span><span class="line">  <span class="p">}</span>
+</span><span class="line"><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Следом идут определения правил вывода для нетерминалов. Нетерминал
+<code>space</code> (пробельные символы) — это произвольное количество
+пробелов:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">space</span>
+</span><span class="line">  <span class="o">=</span> <span class="s1">&#39; &#39;</span><span class="o">*</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Булева константа (<code>literal</code>):</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">literal</span>
+</span><span class="line">  <span class="o">=</span> <span class="nx">space</span> <span class="p">(</span><span class="s1">&#39;true&#39;</span><span class="o">/</span><span class="s1">&#39;yes&#39;</span><span class="p">)</span> <span class="nx">space</span> <span class="p">{</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">BooleanLiteral</span><span class="p">(</span><span class="kc">true</span><span class="p">);</span> <span class="p">}</span>
+</span><span class="line">  <span class="o">/</span> <span class="nx">space</span> <span class="p">(</span><span class="s1">&#39;false&#39;</span><span class="o">/</span><span class="s1">&#39;no&#39;</span><span class="p">)</span> <span class="nx">space</span> <span class="p">{</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">BooleanLiteral</span><span class="p">(</span><span class="kc">false</span><span class="p">);</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Переменная (<code>variable</code>):</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">variable</span> <span class="s2">&quot;variable&quot;</span> <span class="c1">// lowercase letters</span>
+</span><span class="line">  <span class="o">=</span> <span class="nx">space</span> <span class="nx">letters</span><span class="o">:</span><span class="p">[</span><span class="nx">a</span><span class="o">-</span><span class="nx">z</span><span class="p">]</span><span class="o">+</span> <span class="nx">space</span> <span class="p">{</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">Variable</span><span class="p">(</span><span class="nx">letters</span><span class="p">);</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p><code>primary</code>-выражение — описывает любой из следующих вариантов
+— константа, переменная или выражение в скобках:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">primary</span>
+</span><span class="line">  <span class="o">=</span> <span class="nx">literal</span>
+</span><span class="line">  <span class="o">/</span> <span class="nx">variable</span>
+</span><span class="line">  <span class="o">/</span> <span class="nx">space</span> <span class="s1">&#39;(&#39;</span> <span class="nx">space</span> <span class="nx">expr</span><span class="o">:</span><span class="nx">expr</span> <span class="nx">space</span> <span class="s1">&#39;)&#39;</span> <span class="nx">space</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">expr</span><span class="p">;</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p><code>negate</code> — сопоставление с символом оператора логического
+отрицания:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">negate</span>
+</span><span class="line">  <span class="o">=</span> <span class="nx">space</span> <span class="s1">&#39;!&#39;</span> <span class="nx">space</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p><code>term</code> — <code>primary</code> выражение, которому может предшествовать
+логическое отрицание:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">term</span>
+</span><span class="line">  <span class="o">=</span> <span class="nx">negate</span> <span class="nx">arg</span><span class="o">:</span><span class="p">(</span><span class="nx">primary</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="k">new</span> <span class="nx">Negate</span><span class="p">(</span><span class="nx">arg</span><span class="p">)</span> <span class="p">}</span>
+</span><span class="line">  <span class="o">/</span> <span class="nx">primary</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p><code>op</code> — выражение, которое возвращает один из совпавших бинарных
+операторов (конъюнкция или дизъюнкция):</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">op</span>
+</span><span class="line">  <span class="o">=</span> <span class="nx">space</span> <span class="nx">o</span><span class="o">:</span><span class="p">(</span><span class="s1">&#39;&amp;&#39;</span> <span class="o">/</span> <span class="s1">&#39;|&#39;</span><span class="p">)</span> <span class="nx">space</span> <span class="p">{</span> <span class="k">return</span> <span class="nx">o</span><span class="p">;</span> <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>И, наконец, правило для разбора всего логического выражения:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">expr</span>
+</span><span class="line">  <span class="o">=</span> <span class="nx">head</span><span class="o">:</span><span class="nx">term</span> <span class="nx">rest</span><span class="o">:</span><span class="p">(</span><span class="nx">op</span> <span class="nx">term</span><span class="p">)</span><span class="o">*</span> <span class="p">{</span>
+</span><span class="line">    <span class="kd">var</span> <span class="nx">res</span> <span class="o">=</span> <span class="nx">head</span><span class="p">;</span>
+</span><span class="line">    <span class="nx">rest</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">elements</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">      <span class="nx">res</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">BinOp</span><span class="p">(</span><span class="nx">res</span><span class="p">,</span> <span class="nx">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">elements</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class="line">    <span class="p">});</span>
+</span><span class="line">    <span class="k">return</span> <span class="nx">res</span><span class="p">;</span>
+</span><span class="line">  <span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Тут, наверное, понадобятся пояснения. Для начало избавимся от
+семантических действий и меток:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">expr</span>
+</span><span class="line">  <span class="o">=</span> <span class="nx">term</span> <span class="p">(</span><span class="nx">op</span> <span class="nx">term</span><span class="p">)</span><span class="o">*</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Выражение <code>expr</code> — это одно или несколько выражений <code>term</code>,
+разделённых бинарными операторами.</p>
+
+<p>Рассмотрим это правило на примере разбора выражения <code>x &amp; no | z</code>.</p>
+
+<p>В процессе разбора выражению <code>term</code> сопоставится фрагмент <code>x</code>, а
+выражению <code>(op term)*</code> — <code>&amp; no | z</code>. Введём метки:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">expr</span>
+</span><span class="line">  <span class="o">=</span> <span class="nx">head</span><span class="o">:</span><span class="nx">term</span> <span class="nx">rest</span><span class="o">:</span><span class="p">(</span><span class="nx">op</span> <span class="nx">term</span><span class="p">)</span><span class="o">*</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>При разборе меткам присвоятся следующие значения:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">head</span><span class="o">:</span> <span class="nx">Varible</span><span class="p">(</span><span class="nx">x</span><span class="p">)</span>
+</span><span class="line"><span class="nx">rest</span><span class="o">:</span> <span class="p">[</span> <span class="p">[</span><span class="s1">&#39;&amp;&#39;</span><span class="p">,</span> <span class="nx">BooleanLiteral</span><span class="p">(</span><span class="nx">no</span><span class="p">)]</span> <span class="p">,</span> <span class="p">[</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="nx">Variable</span><span class="p">(</span><span class="nx">z</span><span class="p">)]</span> <span class="p">]</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Рассмотрим синтаксическое действие:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="p">{</span>
+</span><span class="line">  <span class="kd">var</span> <span class="nx">res</span> <span class="o">=</span> <span class="nx">head</span><span class="p">;</span>
+</span><span class="line">  <span class="nx">rest</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">elements</span><span class="p">)</span> <span class="p">{</span>
+</span><span class="line">    <span class="nx">res</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">BinOp</span><span class="p">(</span><span class="nx">res</span><span class="p">,</span> <span class="nx">elements</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nx">elements</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+</span><span class="line">  <span class="p">});</span>
+</span><span class="line">  <span class="k">return</span> <span class="nx">res</span><span class="p">;</span>
+</span><span class="line"><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Человеку, знакомому с Javascript, будет понятно, что этот код строит
+дерева разбора начиная с метки <code>head</code> снизу вверх. Примерный вид
+полученного в результате дерева:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+<span class="line-number">5</span>
+<span class="line-number">6</span>
+<span class="line-number">7</span>
+<span class="line-number">8</span>
+<span class="line-number">9</span>
+<span class="line-number">10</span>
+<span class="line-number">11</span>
+<span class="line-number">12</span>
+<span class="line-number">13</span>
+<span class="line-number">14</span>
+<span class="line-number">15</span>
+<span class="line-number">16</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line">             <span class="o">+</span><span class="err">––––––––––</span><span class="o">+</span>
+</span><span class="line">          <span class="o">+</span><span class="err">––</span><span class="o">+</span><span class="nx">BinOp</span><span class="o">:</span> <span class="s1">&#39;|&#39;</span><span class="o">+</span><span class="err">––</span><span class="o">+</span>
+</span><span class="line">          <span class="o">|</span>  <span class="o">+</span><span class="err">––––––––––</span><span class="o">+</span>  <span class="o">|</span>
+</span><span class="line">          <span class="o">|</span>                <span class="o">|</span>
+</span><span class="line">          <span class="o">|</span>                <span class="o">|</span>
+</span><span class="line">          <span class="o">|</span>                <span class="o">|</span>
+</span><span class="line">     <span class="o">+</span><span class="err">––––</span><span class="o">+</span><span class="err">–––––</span><span class="o">+</span>    <span class="o">+</span><span class="err">–––––</span><span class="o">+</span><span class="err">–––––</span><span class="o">+</span>
+</span><span class="line">  <span class="o">+</span><span class="err">––</span><span class="o">+</span><span class="nx">BinOp</span><span class="o">:</span> <span class="s1">&#39;&amp;&#39;</span><span class="o">+</span><span class="err">–</span><span class="o">+</span>  <span class="o">|</span><span class="nx">Variable</span><span class="o">:</span> <span class="nx">z</span><span class="o">|</span>
+</span><span class="line">  <span class="o">|</span>  <span class="o">+</span><span class="err">––––––––––</span><span class="o">+</span> <span class="o">|</span>  <span class="o">+</span><span class="err">–––––––––––</span><span class="o">+</span>
+</span><span class="line">  <span class="o">|</span>               <span class="o">|</span>
+</span><span class="line">  <span class="o">|</span>               <span class="o">|</span>
+</span><span class="line">  <span class="o">|</span>               <span class="o">|</span>
+</span><span class="line">  <span class="o">|</span>               <span class="o">|</span>
+</span><span class="line"><span class="o">+</span><span class="err">–––––</span><span class="o">+</span><span class="err">–––––</span><span class="o">+</span>    <span class="o">+</span><span class="err">––––</span><span class="o">+</span><span class="err">–––––––––––––</span><span class="o">+</span>
+</span><span class="line"><span class="o">|</span><span class="nx">Variable</span><span class="o">:</span> <span class="nx">x</span><span class="o">|</span>    <span class="o">|</span><span class="nx">BooleanLiteral</span><span class="o">:</span> <span class="nx">no</span><span class="o">|</span>
+</span><span class="line"><span class="o">+</span><span class="err">–––––––––––</span><span class="o">+</span>    <span class="o">+</span><span class="err">––––––––––––––––––</span><span class="o">+</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Теперь по поводу того, почему это правило имеет именно такой вид.
+Конечно же, мы могли бы сделать так:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">expr</span>
+</span><span class="line">  <span class="o">=</span> <span class="nx">expr</span> <span class="nx">op</span> <span class="nx">term</span>
+</span><span class="line">  <span class="o">/</span> <span class="nx">term</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Однако это заставило бы парсер уйти в бесконечную рекурсию: парсер
+видит правило <code>expr</code>, начинает сопоставлять выражение с первого
+подвыражения (<code>expr</code>), в результате чего опять переходит на разбор
+правила <code>expr</code>, и этот переход повторяется вновь и вновь. Такая
+ситуация называется <em>левой рекурсией</em> (т. е., правила вида <code>a = a b</code>),
+и некоторые генераторы парсеров могут самостоятельно разрешать такие
+правила, однако PEG-парсеры к их числу не относятся.</p>
+
+<p>Один из способов разрешить левую рекурсию — перейти к правой
+рекурсии:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+</pre></td><td class="code"><pre><code class="javascript"><span class="line"><span class="nx">expr</span>
+</span><span class="line">  <span class="o">=</span> <span class="nx">term</span> <span class="nx">op</span> <span class="nx">expr</span>
+</span><span class="line">  <span class="o">/</span> <span class="nx">term</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>При этом возникает другая проблема — результирующее дерева
+разбора растёт в сторону правой ветви, а не левой, что соответствует
+правоассоциативным операторам (а не левоассоциативным, как у нас).
+Иногда такое поведение и требуется изначально, но только не в нашем
+случае.</p>
+
+<h1 id="section-4">Заключение</h1>
+
+<p>Данный пост не претендует на всеобъемлющий охват такой обширной темы,
+как синтаксический анализ. Многие проблемы (классификация грамматик,
+деревья разбора, абстрактные синтаксические деревья, левая рекурсия,
+управление приоритетом и ассоциативностью операций и проч.) были
+затронуты лишь поверхностно или вообще оставлены за кадром (во многом
+по той причине, что я сам не достаточно хорошо владею описываемым
+вопросом); для тех, кто хочет подробно ознакомиться с этими понятиями,
+существует большое количество высококачественной литературы (список
+которой, наверное, я когда-нибудь включу в этот пост).</p>
+
+<p>Я же хотел продемонстрировать мощь генераторов парсеров (в данном
+случае генератора PEG-парсера) в такой часто встречающейся задаче, как
+разбор текста. Представленные в данном посте понятия и методики
+позволяют при желании легко расширить наш язык выражений, добавив
+новые операторы или даже управляющие конструкции.</p>
+
+<h1 id="section-5">Демонстрация</h1>
+
+<p>Для демонстрации я написал простую мордочку на Bootstrap и AngularJS:</p>
+
+<p><small>
+    Нажмите <a href="http://demos.smaximov.info/peg" target="_blank">сюда</a>,
+    если iframe ниже не отображается.
+</small></p>
 
 <iframe src="http://demos.smaximov.info/peg" height="570" width="100%" style="border-radius: 5px; border: 1px #E0E0E0 groove">
     Your browser doesn&#8217;t support iframes, sorry :(
 </iframe>
 
-<h1 id="section-4">Ссылки</h1>
+<h1 id="section-6">Ссылки</h1>
 
 <ul>
   <li><a href="https://github.com/smaximov/expression-peg-example">Исходный код примера</a></li>
@@ -260,7 +662,7 @@
 
 <span class="categories">
   
-    <a class='category' href='/blog/categories/angularjs/'>AngularJS</a>, <a class='category' href='/blog/categories/javascript/'>Javascript</a>, <a class='category' href='/blog/categories/parsing/'>Parsing</a>, <a class='category' href='/blog/categories/peg/'>Peg</a>
+    <a class='category' href='/blog/categories/javascript/'>Javascript</a>, <a class='category' href='/blog/categories/parsing/'>Parsing</a>, <a class='category' href='/blog/categories/peg/'>Peg</a>
   
 </span>
 
