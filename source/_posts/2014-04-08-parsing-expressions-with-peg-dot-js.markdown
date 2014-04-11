@@ -3,6 +3,7 @@ layout: post
 title: "Разбор выражений с помощью PEG"
 date: 2014-04-08 17:46
 comments: true
+keywords: "peg, parsing, formal grammar, grammar, syntactical analysis, parsing expression grammar"
 categories:
     - Javascript
     - Peg
