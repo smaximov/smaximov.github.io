@@ -1,0 +1,383 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Cabal sandbox и direnv - Без названия</title>
+  <meta name="author" content="Сергей Максимов">
+
+  
+  <meta name="description" content="cabal sandbox to rescue! Инициализация Добавление локальной зависимости Удаление песочницы Манипуляция PATH Специфичное для директории окружение &hellip;">
+  <meta name="keywords" content="cabal, direnv, zsh, shell">
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://blog.smaximov.info/blog/2014/07/15/cabal-sandbox-and-direnv">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Без названия" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/lib/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+-->
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Без названия</a></h1>
+  
+    <h2>Блог о языках программирования, технологиях и прочих (не)интересных вещах</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:blog.smaximov.info" />
+    <input class="search" type="text" name="q" results="0" placeholder="Поиск..."/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Блог</a></li>
+  <li><a href="/blog/archives">Архив</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Cabal Sandbox и Direnv</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-15T17:26:00+11:00" pubdate data-updated="true">Jul 15<span>th</span>, 2014</time>
+        
+        
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/cabal/'>Cabal</a>, <a class='category' href='/blog/categories/zsh/'>Zsh</a>, <a class='category' href='/blog/categories/direnv/'>direnv</a>
+  
+</span>
+
+
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><ul id="markdown-toc">
+  <li><a href="#cabal-sandbox-to-rescue"><code>cabal sandbox</code> to rescue!</a>    <ul>
+      <li><a href="#section">Инициализация</a></li>
+      <li><a href="#section-1">Добавление локальной зависимости</a></li>
+      <li><a href="#section-2">Удаление песочницы</a></li>
+      <li><a href="#path">Манипуляция <code>PATH</code></a></li>
+    </ul>
+  </li>
+  <li><a href="#section-3">Специфичное для директории окружение</a></li>
+</ul>
+
+<p>Cabal на текущий момент имеет очень серьёзный недостаток: он не
+поддерживает одновременной установки различных версий одного и того же
+пакета. В результате мы имеем ситуацию, когда обновление версии
+какого-нибудь пакета может привести к тому, что сломаются пакеты,
+зависящие от старой версии этого пакета.</p>
+
+<!-- more -->
+
+<h1 id="cabal-sandbox-to-rescue"><code>cabal sandbox</code> to rescue!</h1>
+
+<p><a href="http://www.haskell.org/cabal/users-guide/installing-packages.html#developing-with-sandboxes">Cabal Sandboxes</a>
+— это относительно новая (начиная с версии 1.18) фича
+cabal-install, призванная стать (временным) решением данной проблемы.</p>
+
+<p>«Песочницы» позволяют создать изолированные окружения для
+каждого пакета. Каждое такое окружение имеет свою собственную локальную базу
+данных пакетов. Также окружение может ссылаться на пакет, который ещё
+не был выпущен или на версию, которой нет в архиве пакетов.</p>
+
+<h2 id="section">Инициализация</h2>
+
+<p>Для инициализации песочницы нужно выполнить следующую команду из
+корневой директории проекта:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">cabal sandbox init
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>При этом будет сгенерирована директория <code>.cabal-sandbox</code>, в которой
+будут установлены зависимости и результаты сборки пакета. Дальнейшие
+команды <code>cabal</code> будут выполняться уже в контексте песочницы.</p>
+
+<h2 id="section-1">Добавление локальной зависимости</h2>
+
+<p><code>cabal sandbox</code> позволяет указать директорию, в которой находятся
+исходные коды некоторого пакета, в качестве источника, откуда этот
+пакет будет установлен в качестве зависимости.</p>
+
+<p>Допустим, мы разрабатываем пакет <code>foo</code>, который зависит от пакета
+<code>bar</code>. Представим себе, что пакета <code>bar</code> ещё нет на Hackage (или мы
+пропатчили пакет <code>bar</code>, но патч ещё не отослали). Тогда можно указать
+в песочнице пакета <code>foo</code>, чтобы пакет <code>bar</code> устанавливался не из
+Hackage, а из исходников:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="c"># В корневой директории пакета foo</span>
+</span><span class="line">cabal sandbox add-source path/to/bar
+</span><span class="line"><span class="c"># Установка зависимостей: bar будет установлен из path/to/bar</span>
+</span><span class="line">cabal install --dependencies-only
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="section-2">Удаление песочницы</h2>
+
+<p>Для удаления песочницы и возврату к «обычному» режиму
+Cabal нужно выполнить команду <code>cabal sandbox delete</code>. В качестве
+альтернативы можно просто удалить файлы и директории песочницы:
+<code>cabal.sandbox.config</code> и <code>.cabal-sandbox/</code>.</p>
+
+<h2 id="path">Манипуляция <code>PATH</code></h2>
+
+<p>Песочница устанавливает исполняемые файлы в поддиректорию
+<code>.cabal-sandbox/bin</code> пакета. Для того, чтобы каждый раз не писать путь
+к бинарникам, нужно модифицировать переменную окружения <code>PATH</code>.
+Очевидный способ — добавить относительный путь
+<code>.cabal-sandbox/bin</code> к переменной <code>PATH</code> в rc-файле шелла —
+банален и неинтересен; рассмотрим вместо этого более гибкое решение,
+которое может пригодиться и в других ситуациях.</p>
+
+<h1 id="section-3">Специфичное для директории окружение</h1>
+
+<p>Нас интересует решение, которое позволяло бы в зависимости от текущей
+директории иметь различное значение <code>PATH</code> (а в идеале и других
+переменных окружения). Такого поведения можно добиться с помощью
+утилиты <a href="http://direnv.net/">direnv</a>, написанной на Go. Direnv
+встраивается в шелл и загружает и восстанавливает переменные окружения
+при смене рабочей директории.</p>
+
+<p>После установки утилиты её нужно добавить
+следующую строчку (в случае Zsh, который я использую) в конец
+rc-файла шелла:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nb">eval</span> <span class="s2">&quot;$(direnv hook zsh)&quot;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>После этого в директории, которая требует специфических настроек
+окружения, создаётся файл <code>.envrc</code>, который устанавливает и
+экспортирует нужные переменные. Для нашего примера с песочницами это
+был бы файл <code>.envrc</code> в корневой директории пакета со следующим
+содержимым:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;${PWD}/.cabal-sandbox/bin:${PATH}&quot;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>что эквивалентно следующей строке с использованием одной из
+вспомогательных функций dirent:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">PATH_add .cabal-sandbox/bin
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>После этого нужно разрешить dirent выполнять содержимое <code>.envrc</code> в
+этой директории:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">dirent allow .
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>В качестве альтернативы можно использовать команду</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">dirent edit .
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Она открывает <code>./.envrc</code> в редакторе <code>$EDITOR</code> и автоматически
+разрешает этот файл после его изменения.</p>
+
+<p>Теперь при входе в эту директорию переменные из <code>.envrc</code> будут
+загружены в текущее окружение, а при выходе — выгружены.</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Сергей Максимов</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-15T17:26:00+11:00" pubdate data-updated="true">Jul 15<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/cabal/'>Cabal</a>, <a class='category' href='/blog/categories/zsh/'>Zsh</a>, <a class='category' href='/blog/categories/direnv/'>direnv</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://blog.smaximov.info/blog/2014/07/15/cabal-sandbox-and-direnv/" data-via="" data-counturl="http://blog.smaximov.info/blog/2014/07/15/cabal-sandbox-and-direnv/" >Tweet</a>
+  
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/04/08/parsing-expressions-with-peg-dot-js/" title="Предыдущий пост: Разбор выражений с помощью PEG">&laquo; Разбор выражений с помощью PEG</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Недавнее</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/07/15/cabal-sandbox-and-direnv/">Cabal Sandbox и Direnv</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/04/08/parsing-expressions-with-peg-dot-js/">Разбор выражений с помощью PEG</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/02/21/setting-up-discourse-on-ubuntu-server-12-dot-04/">Поднимаем Discourse на Ubuntu Server 12.04</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/11/29/automatic-resource-management-in-scala/">Automatic Resource Management in Scala</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/06/26/switching-markdown-processor-to-kramdown/">Kramdown в качестве процессора Markdown</a>
+      </li>
+    
+  </ul>
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Сергей Максимов -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span> -
+  <span class="credit">Generated by <a href="http://jekyllrb.com/">Jeckyll</a></span> -
+  <span class="credit">Hosted by <a href="https://github.com/">Github</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'smaximov';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://blog.smaximov.info/blog/2014/07/15/cabal-sandbox-and-direnv/';
+        var disqus_url = 'http://blog.smaximov.info/blog/2014/07/15/cabal-sandbox-and-direnv/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

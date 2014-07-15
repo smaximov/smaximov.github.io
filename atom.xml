@@ -4,7 +4,7 @@
   <title><![CDATA[Без названия]]></title>
   <link href="http://blog.smaximov.info/atom.xml" rel="self"/>
   <link href="http://blog.smaximov.info/"/>
-  <updated>2014-04-11T21:46:07+11:00</updated>
+  <updated>2014-07-15T19:10:05+11:00</updated>
   <id>http://blog.smaximov.info/</id>
   <author>
     <name><![CDATA[Сергей Максимов]]></name>
@@ -12,6 +12,147 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cabal sandbox и direnv]]></title>
+    <link href="http://blog.smaximov.info/blog/2014/07/15/cabal-sandbox-and-direnv/"/>
+    <updated>2014-07-15T17:26:00+11:00</updated>
+    <id>http://blog.smaximov.info/blog/2014/07/15/cabal-sandbox-and-direnv</id>
+    <content type="html"><![CDATA[<ul id="markdown-toc">
+  <li><a href="#cabal-sandbox-to-rescue"><code>cabal sandbox</code> to rescue!</a>    <ul>
+      <li><a href="#section">Инициализация</a></li>
+      <li><a href="#section-1">Добавление локальной зависимости</a></li>
+      <li><a href="#section-2">Удаление песочницы</a></li>
+      <li><a href="#path">Манипуляция <code>PATH</code></a></li>
+    </ul>
+  </li>
+  <li><a href="#section-3">Специфичное для директории окружение</a></li>
+</ul>
+
+<p>Cabal на текущий момент имеет очень серьёзный недостаток: он не
+поддерживает одновременной установки различных версий одного и того же
+пакета. В результате мы имеем ситуацию, когда обновление версии
+какого-нибудь пакета может привести к тому, что сломаются пакеты,
+зависящие от старой версии этого пакета.</p>
+
+<!-- more -->
+
+<h1 id="cabal-sandbox-to-rescue"><code>cabal sandbox</code> to rescue!</h1>
+
+<p><a href="http://www.haskell.org/cabal/users-guide/installing-packages.html#developing-with-sandboxes">Cabal Sandboxes</a>
+— это относительно новая (начиная с версии 1.18) фича
+cabal-install, призванная стать (временным) решением данной проблемы.</p>
+
+<p>«Песочницы» позволяют создать изолированные окружения для
+каждого пакета. Каждое такое окружение имеет свою собственную локальную базу
+данных пакетов. Также окружение может ссылаться на пакет, который ещё
+не был выпущен или на версию, которой нет в архиве пакетов.</p>
+
+<h2 id="section">Инициализация</h2>
+
+<p>Для инициализации песочницы нужно выполнить следующую команду из
+корневой директории проекта:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">cabal sandbox init
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>При этом будет сгенерирована директория <code>.cabal-sandbox</code>, в которой
+будут установлены зависимости и результаты сборки пакета. Дальнейшие
+команды <code>cabal</code> будут выполняться уже в контексте песочницы.</p>
+
+<h2 id="section-1">Добавление локальной зависимости</h2>
+
+<p><code>cabal sandbox</code> позволяет указать директорию, в которой находятся
+исходные коды некоторого пакета, в качестве источника, откуда этот
+пакет будет установлен в качестве зависимости.</p>
+
+<p>Допустим, мы разрабатываем пакет <code>foo</code>, который зависит от пакета
+<code>bar</code>. Представим себе, что пакета <code>bar</code> ещё нет на Hackage (или мы
+пропатчили пакет <code>bar</code>, но патч ещё не отослали). Тогда можно указать
+в песочнице пакета <code>foo</code>, чтобы пакет <code>bar</code> устанавливался не из
+Hackage, а из исходников:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+<span class="line-number">2</span>
+<span class="line-number">3</span>
+<span class="line-number">4</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="c"># В корневой директории пакета foo</span>
+</span><span class="line">cabal sandbox add-source path/to/bar
+</span><span class="line"><span class="c"># Установка зависимостей: bar будет установлен из path/to/bar</span>
+</span><span class="line">cabal install --dependencies-only
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<h2 id="section-2">Удаление песочницы</h2>
+
+<p>Для удаления песочницы и возврату к «обычному» режиму
+Cabal нужно выполнить команду <code>cabal sandbox delete</code>. В качестве
+альтернативы можно просто удалить файлы и директории песочницы:
+<code>cabal.sandbox.config</code> и <code>.cabal-sandbox/</code>.</p>
+
+<h2 id="path">Манипуляция <code>PATH</code></h2>
+
+<p>Песочница устанавливает исполняемые файлы в поддиректорию
+<code>.cabal-sandbox/bin</code> пакета. Для того, чтобы каждый раз не писать путь
+к бинарникам, нужно модифицировать переменную окружения <code>PATH</code>.
+Очевидный способ — добавить относительный путь
+<code>.cabal-sandbox/bin</code> к переменной <code>PATH</code> в rc-файле шелла —
+банален и неинтересен; рассмотрим вместо этого более гибкое решение,
+которое может пригодиться и в других ситуациях.</p>
+
+<h1 id="section-3">Специфичное для директории окружение</h1>
+
+<p>Нас интересует решение, которое позволяло бы в зависимости от текущей
+директории иметь различное значение <code>PATH</code> (а в идеале и других
+переменных окружения). Такого поведения можно добиться с помощью
+утилиты <a href="http://direnv.net/">direnv</a>, написанной на Go. Direnv
+встраивается в шелл и загружает и восстанавливает переменные окружения
+при смене рабочей директории.</p>
+
+<p>После установки утилиты её нужно добавить
+следующую строчку (в случае Zsh, который я использую) в конец
+rc-файла шелла:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nb">eval</span> <span class="s2">&quot;$(direnv hook zsh)&quot;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>После этого в директории, которая требует специфических настроек
+окружения, создаётся файл <code>.envrc</code>, который устанавливает и
+экспортирует нужные переменные. Для нашего примера с песочницами это
+был бы файл <code>.envrc</code> в корневой директории пакета со следующим
+содержимым:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line"><span class="nb">export </span><span class="nv">PATH</span><span class="o">=</span><span class="s2">&quot;${PWD}/.cabal-sandbox/bin:${PATH}&quot;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+<p>что эквивалентно следующей строке с использованием одной из
+вспомогательных функций dirent:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">PATH_add .cabal-sandbox/bin
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>После этого нужно разрешить dirent выполнять содержимое <code>.envrc</code> в
+этой директории:</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">dirent allow .
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>В качестве альтернативы можно использовать команду</p>
+
+<div class="bogus-wrapper"><notextile><figure class="code"><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class="line-number">1</span>
+</pre></td><td class="code"><pre><code class="bash"><span class="line">dirent edit .
+</span></code></pre></td></tr></table></div></figure></notextile></div>
+
+<p>Она открывает <code>./.envrc</code> в редакторе <code>$EDITOR</code> и автоматически
+разрешает этот файл после его изменения.</p>
+
+<p>Теперь при входе в эту директорию переменные из <code>.envrc</code> будут
+загружены в текущее окружение, а при выходе — выгружены.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Разбор выражений с помощью PEG]]></title>

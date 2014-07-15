@@ -9,7 +9,7 @@
   <meta name="author" content="Сергей Максимов">
 
   
-  <meta name="description" content="Синтаксический анализ Формальная грамматика Parsing Expression Grammars Генератор парсеров PEG.js Разбор языка логических выражений Грамматика языка &hellip;">
+  <meta name="description" content="cabal sandbox to rescue! Инициализация Добавление локальной зависимости Удаление песочницы Манипуляция PATH Специфичное для директории окружение &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -66,6 +66,71 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/07/15/cabal-sandbox-and-direnv/">Cabal Sandbox и Direnv</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-07-15T17:26:00+11:00" pubdate data-updated="true">Jul 15<span>th</span>, 2014</time>
+        
+        
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/cabal/'>Cabal</a>, <a class='category' href='/blog/categories/zsh/'>Zsh</a>, <a class='category' href='/blog/categories/direnv/'>direnv</a>
+  
+</span>
+
+
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><ul id="markdown-toc">
+  <li><a href="#cabal-sandbox-to-rescue"><code>cabal sandbox</code> to rescue!</a>    <ul>
+      <li><a href="#section">Инициализация</a></li>
+      <li><a href="#section-1">Добавление локальной зависимости</a></li>
+      <li><a href="#section-2">Удаление песочницы</a></li>
+      <li><a href="#path">Манипуляция <code>PATH</code></a></li>
+    </ul>
+  </li>
+  <li><a href="#section-3">Специфичное для директории окружение</a></li>
+</ul>
+
+<p>Cabal на текущий момент имеет очень серьёзный недостаток: он не
+поддерживает одновременной установки различных версий одного и того же
+пакета. В результате мы имеем ситуацию, когда обновление версии
+какого-нибудь пакета может привести к тому, что сломаются пакеты,
+зависящие от старой версии этого пакета.</p>
+
+</div>
+  
+  
+    <footer>
+      <a rel="full-article" href="/blog/2014/07/15/cabal-sandbox-and-direnv/">Читать дальше &rarr;</a>
+    </footer>
+  
+
+
+    </article>
   
   
     <article>
@@ -827,6 +892,10 @@ Case’ов и других Test Suite’ов; их выполнение отл�
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/07/15/cabal-sandbox-and-direnv/">Cabal Sandbox и Direnv</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/04/08/parsing-expressions-with-peg-dot-js/">Разбор выражений с помощью PEG</a>
       </li>
     
@@ -840,10 +909,6 @@ Case’ов и других Test Suite’ов; их выполнение отл�
     
       <li class="post">
         <a href="/blog/2013/06/26/switching-markdown-processor-to-kramdown/">Kramdown в качестве процессора Markdown</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/06/25/add-categories-to-post-title/">Добавление категорий к заголовку поста</a>
       </li>
     
   </ul>
